@@ -1,217 +1,82 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Christ Media | Photographie & Vidéo</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Christ Media - Studio Photo & Vidéo</title>
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="container header-content">
-      <h1 class="logo">Christ <span>Media</span></h1>
+<header>
+  <div class="logo">CHRIST MEDIA</div>
+  <nav>
+    <a href="#galerie">Galerie</a>
+    <a href="#tarifs">Tarifs</a>
+    <a href="#avis">Témoignages</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
 
-      <nav class="nav">
-        <a href="#accueil">Accueil</a>
-        <a href="#services">Services</a>
-        <a href="#galerie">Galerie</a>
-        <a href="#tarifs">Tarifs</a>
-        <a href="#reservation">Réservation</a>
-        <a href="#contact">Contact</a>
-      </nav>
+<section class="hero">
+  <h1>Capturez vos moments précieux</h1>
+  <p>Photo • Vidéo • Mariage • Événements</p>
+  <a class="btn" href="https://wa.me/22890260658" target="_blank">Réserver sur WhatsApp</a>
+</section>
 
-      <button class="menu-btn" onclick="toggleMenu()">☰</button>
-    </div>
-  </header>
-
-  <!-- MENU MOBILE -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="#accueil" onclick="toggleMenu()">Accueil</a>
-    <a href="#services" onclick="toggleMenu()">Services</a>
-    <a href="#galerie" onclick="toggleMenu()">Galerie</a>
-    <a href="#tarifs" onclick="toggleMenu()">Tarifs</a>
-    <a href="#reservation" onclick="toggleMenu()">Réservation</a>
-    <a href="#contact" onclick="toggleMenu()">Contact</a>
+<section id="galerie">
+  <h2>Galerie Instagram</h2>
+  <div class="grid">
+    <img src="img1.jpg">
+    <img src="img2.jpg">
+    <img src="img3.jpg">
+    <img src="img4.jpg">
+    <img src="img5.jpg">
+    <img src="img6.jpg">
   </div>
+</section>
 
-  <!-- HERO -->
-  <section class="hero" id="accueil">
-    <div class="container hero-content">
-      <h2>Photographie & Vidéo Professionnelles</h2>
-      <p class="slogan">Capturez l’instant, revivez l’émotion.</p>
-
-      <div class="hero-buttons">
-        <a class="btn primary" href="#reservation">Réserver maintenant</a>
-        <a class="btn secondary" href="#galerie">Voir la galerie</a>
-      </div>
+<section id="tarifs">
+  <h2>Nos Tarifs</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Pack Basic</h3>
+      <p>Photos événements simples</p>
+      <strong>10 000 FCFA</strong>
     </div>
-  </section>
 
-  <!-- SERVICES -->
-  <section class="section" id="services">
-    <div class="container">
-      <h2 class="section-title">Nos Services</h2>
-
-      <div class="grid">
-        <div class="card">
-          <h3>Dot</h3>
-          <p>Couverture complète photo/vidéo de vos cérémonies de dot avec rendu professionnel.</p>
-        </div>
-
-        <div class="card">
-          <h3>Mariage Civil</h3>
-          <p>Reportage photo et vidéo de votre mariage civil, moments clés et portraits élégants.</p>
-        </div>
-
-        <div class="card">
-          <h3>Mariage Religieux</h3>
-          <p>Captation des moments spirituels, entrée, échange des vœux, bénédictions et sortie.</p>
-        </div>
-
-        <div class="card">
-          <h3>Shooting Photo</h3>
-          <p>Shooting studio ou extérieur : portrait, couple, mode, photo souvenir.</p>
-        </div>
-
-        <div class="card">
-          <h3>Vidéo Événementielle</h3>
-          <p>Montage professionnel, clips, vidéos highlights et souvenirs cinématographiques.</p>
-        </div>
-
-        <div class="card">
-          <h3>Impression Photo</h3>
-          <p>Impression express de vos photos souvenirs avec qualité professionnelle.</p>
-        </div>
-      </div>
+    <div class="card">
+      <h3>Pack Pro</h3>
+      <p>Photo + retouche + livraison</p>
+      <strong>25 000 FCFA</strong>
     </div>
-  </section>
 
-  <!-- GALERIE -->
-  <section class="section light" id="galerie">
-    <div class="container">
-      <h2 class="section-title">Galerie</h2>
-      <p class="section-subtitle">Quelques exemples de nos réalisations.</p>
-
-      <div class="gallery">
-        <div class="gallery-item">Photo 1</div>
-        <div class="gallery-item">Photo 2</div>
-        <div class="gallery-item">Photo 3</div>
-        <div class="gallery-item">Photo 4</div>
-        <div class="gallery-item">Photo 5</div>
-        <div class="gallery-item">Photo 6</div>
-      </div>
-
-      <p class="note">
-        (Tu peux remplacer ces cases par tes vraies photos plus tard.)
-      </p>
+    <div class="card">
+      <h3>Pack Premium</h3>
+      <p>Photo + vidéo + montage</p>
+      <strong>Sur devis</strong>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- TARIFS -->
-  <section class="section" id="tarifs">
-    <div class="container">
-      <h2 class="section-title">Nos Tarifs</h2>
-      <p class="section-subtitle">Choisissez un pack adapté à votre événement.</p>
+<section id="avis">
+  <h2>Témoignages</h2>
+  <p class="empty">Aucun témoignage pour le moment.</p>
+</section>
 
-      <div class="pricing">
+<section id="contact">
+  <h2>Contact</h2>
+  <p>WhatsApp : 90260658 / 97217635</p>
+  <p>Email : christmedia176@gmail.com</p>
+</section>
 
-        <div class="price-card">
-          <h3>Pack Bronze</h3>
-          <p class="price">À partir de 50 000 FCFA</p>
-          <ul>
-            <li>Couverture photo</li>
-            <li>Retouches professionnelles</li>
-            <li>Livraison numérique</li>
-          </ul>
-          <a class="btn primary" href="#reservation">Choisir</a>
-        </div>
+<footer>
+  <p>© 2026 CHRIST MEDIA - Tsévié, Togo</p>
+</footer>
 
-        <div class="price-card featured">
-          <h3>Pack Argent</h3>
-          <p class="price">À partir de 100 000 FCFA</p>
-          <ul>
-            <li>Photo + Vidéo</li>
-            <li>Montage highlights</li>
-            <li>Album numérique</li>
-          </ul>
-          <a class="btn primary" href="#reservation">Choisir</a>
-        </div>
+<a class="whatsapp" href="https://wa.me/22890260658" target="_blank">💬</a>
 
-        <div class="price-card">
-          <h3>Pack Or</h3>
-          <p class="price">À partir de 150 000 FCFA</p>
-          <ul>
-            <li>Couverture complète</li>
-            <li>Clip cinématographique</li>
-            <li>Impression photo (selon format)</li>
-          </ul>
-          <a class="btn primary" href="#reservation">Choisir</a>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- RESERVATION -->
-  <section class="section light" id="reservation">
-    <div class="container">
-      <h2 class="section-title">Réservation</h2>
-      <p class="section-subtitle">Remplis le formulaire, nous te répondrons rapidement.</p>
-
-      <form class="form" id="reservationForm">
-        <div class="form-row">
-          <input type="text" id="nom" placeholder="Nom complet" required>
-          <input type="tel" id="telephone" placeholder="Téléphone" required>
-        </div>
-
-        <div class="form-row">
-          <input type="date" id="date" required>
-          <select id="typeEvenement" required>
-            <option value="">Type d'événement</option>
-            <option value="Dot">Dot</option>
-            <option value="Mariage civil">Mariage civil</option>
-            <option value="Mariage religieux">Mariage religieux</option>
-            <option value="Shooting photo">Shooting photo</option>
-            <option value="Vidéo événementielle">Vidéo événementielle</option>
-            <option value="Impression photo">Impression photo</option>
-          </select>
-        </div>
-
-        <input type="text" id="lieu" placeholder="Lieu de l'événement (ville/quartier)" required>
-
-        <textarea id="message" placeholder="Message / Détails (budget, nombre d'heures, besoins...)" rows="5"></textarea>
-
-        <button type="submit" class="btn primary">Envoyer sur WhatsApp</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section class="section" id="contact">
-    <div class="container">
-      <h2 class="section-title">Contact</h2>
-
-      <div class="contact-box">
-        <p><strong>📍 Localisation :</strong> Tsévié – Togo</p>
-        <p><strong>📞 Téléphones :</strong> 90260658 / 97217635</p>
-        <p><strong>📧 Email :</strong> christmedia176@gmail.com</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <p>© 2026 Christ Media | Tous droits réservés.</p>
-  </footer>
-
-  <!-- WHATSAPP FLOATING BUTTON -->
-  <a class="whatsapp-float" href="https://wa.me/22897217635" target="_blank">
-    WhatsApp
-  </a>
-
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
