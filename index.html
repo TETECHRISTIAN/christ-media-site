@@ -245,10 +245,11 @@
   async function loadVideos() {
     const loading = document.getElementById('videos-loading');
     try {
-      // Chercher l'ID de la chaîne
-      const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelType=any&q=${YT_CHANNEL}&type=channel&key=${YT_API_KEY}`);
+      // Chercher l'ID de la chaîne via handle
+      const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=christmedia9754&key=${YT_API_KEY}`);
       const searchData = await searchRes.json();
-      const channelId = searchData.items[0].id.channelId;
+      if (!searchData.items || searchData.items.length === 0) throw new Error('Chaîne introuvable');
+      const channelId = searchData.items[0].id;
 
       // Charger les dernières vidéos
       const vidRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=6&order=date&type=video&key=${YT_API_KEY}`);
