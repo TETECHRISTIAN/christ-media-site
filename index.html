@@ -10,7 +10,6 @@
     .grid img:hover { transform: scale(1.03); }
     #galerie-loading { text-align: center; color: #888; margin: 20px 0; font-style: italic; }
 
-    /* Lightbox */
     #lightbox {
       display: none;
       position: fixed;
@@ -21,17 +20,15 @@
       justify-content: center;
     }
     #lightbox.active { display: flex; }
-    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
     #lightbox-close {
       position: absolute;
       top: 18px; right: 26px;
       font-size: 2.2rem;
       color: white;
       cursor: pointer;
-      line-height: 1;
     }
 
-    /* Bouton admin (discret) */
     #admin-toggle {
       display: block;
       margin: 10px auto 0;
@@ -44,11 +41,7 @@
       cursor: pointer;
     }
     #admin-toggle:hover { color: #555; border-color: #999; }
-    #upload-zone {
-      display: none;
-      text-align: center;
-      margin: 16px auto;
-    }
+    #upload-zone { display: none; text-align: center; margin: 16px auto; }
     #upload-btn {
       background: #0077b6;
       color: white;
@@ -61,7 +54,6 @@
     #upload-btn:hover { background: #005f99; }
   </style>
 </head>
-
 <body>
 
 <header>
@@ -82,14 +74,10 @@
 
 <section id="galerie">
   <h2>Galerie</h2>
-
-  <!-- Zone upload admin (cachée par défaut) -->
   <div id="upload-zone">
     <button id="upload-btn">&#128247; Ajouter des photos</button>
-    <p style="font-size:0.8rem;color:#999;margin-top:6px">Les photos seront visibles après rechargement de la page</p>
   </div>
   <button id="admin-toggle">+ Ajouter des photos</button>
-
   <p id="galerie-loading">Chargement des photos...</p>
   <div class="grid" id="galerie-grid"></div>
 </section>
@@ -132,92 +120,23 @@
 
 <a class="whatsapp" href="https://wa.me/22890260658" target="_blank">💬</a>
 
-<!-- Lightbox -->
 <div id="lightbox">
   <span id="lightbox-close">&#x2715;</span>
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<!-- Cloudinary Upload Widget -->
 <script src="https://upload-widget.cloudinary.com/global/all.js"></script>
-
 <script>
   const CLOUD_NAME = 'dblvskqy9';
   const UPLOAD_PRESET = 'galerie_preset';
-  const FOLDER = 'galerie';
-  const API_KEY = '197543758273783';
 
-  // ---- Charger la galerie via Search API ----
-  async function loadGalerie() {
-    const loading = document.getElementById('galerie-loading');
-    const grid = document.getElementById('galerie-grid');
-
-    try {
-      // Utilise l'endpoint de recherche public (lecture seule, pas de secret requis)
-      const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
-      const res = await fetch(url);
-
-      if (!res.ok) throw new Error('list blocked');
-      const data = await res.json();
-      const resources = data.resources || [];
-
-      loading.style.display = 'none';
-
-      if (resources.length === 0) {
-        loading.textContent = 'Aucune photo dans la galerie pour le moment.';
-        loading.style.display = 'block';
-        return;
-      }
-
-      resources.forEach(r => ajouterImage(`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
-        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`));
-
-    } catch (e) {
-      // Fallback : essayer via tag
-      try {
-        const res2 = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/galerie.json`);
-        const data2 = await res2.json();
-        loading.style.display = 'none';
-        (data2.resources || []).forEach(r => ajouterImage(
-          `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
-          `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`
-        ));
-      } catch {
-        loading.textContent = 'La galerie se chargera après l\'ajout de photos.';
-      }
-    }
-  }
-
-  function ajouterImage(thumbUrl, fullUrl) {
-    const grid = document.getElementById('galerie-grid');
-    const img = document.createElement('img');
-    img.src = thumbUrl;
-    img.alt = 'Christ Media';
-    img.loading = 'lazy';
-    img.addEventListener('click', () => openLightbox(fullUrl));
-    grid.appendChild(img);
-  }
-
-  // ---- Upload Widget ----
+  // Upload Widget — sans API key (unsigned preset suffit)
   const widget = cloudinary.createUploadWidget({
     cloudName: CLOUD_NAME,
     uploadPreset: UPLOAD_PRESET,
-    folder: FOLDER,
     sources: ['local', 'camera'],
     multiple: true,
-    maxFiles: 50,
-    language: 'fr',
-    text: {
-      fr: {
-        or: 'Ou',
-        back: 'Retour',
-        advanced: 'Avancé',
-        close: 'Fermer',
-        no_results: 'Aucun résultat',
-        upload_label: 'Glissez vos photos ici',
-        menu: { files: 'Mes fichiers', camera: 'Caméra' }
-      }
-    }
+    maxFiles: 50
   }, (error, result) => {
     if (!error && result && result.event === 'success') {
       const info = result.info;
@@ -231,7 +150,7 @@
 
   document.getElementById('upload-btn').addEventListener('click', () => widget.open());
 
-  // ---- Toggle admin ----
+  // Toggle admin
   document.getElementById('admin-toggle').addEventListener('click', function() {
     const zone = document.getElementById('upload-zone');
     if (zone.style.display === 'block') {
@@ -243,7 +162,41 @@
     }
   });
 
-  // ---- Lightbox ----
+  // Charger la galerie existante
+  async function loadGalerie() {
+    const loading = document.getElementById('galerie-loading');
+    try {
+      const res = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/galerie.json`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      const resources = data.resources || [];
+      loading.style.display = 'none';
+      if (resources.length === 0) {
+        loading.textContent = 'Aucune photo pour le moment.';
+        loading.style.display = 'block';
+        return;
+      }
+      resources.forEach(r => ajouterImage(
+        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
+        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`
+      ));
+    } catch {
+      loading.textContent = 'Aucune photo pour le moment.';
+    }
+  }
+
+  function ajouterImage(thumbUrl, fullUrl) {
+    const grid = document.getElementById('galerie-grid');
+    const img = document.createElement('img');
+    img.src = thumbUrl;
+    img.alt = 'Christ Media';
+    img.loading = 'lazy';
+    img.addEventListener('click', () => openLightbox(fullUrl));
+    grid.appendChild(img);
+    document.getElementById('galerie-loading').style.display = 'none';
+  }
+
+  // Lightbox
   function openLightbox(src) {
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox').classList.add('active');
