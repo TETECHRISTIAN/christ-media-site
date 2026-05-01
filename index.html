@@ -8,39 +8,57 @@
   <style>
     .grid img { cursor: pointer; transition: transform 0.2s; }
     .grid img:hover { transform: scale(1.03); }
-    #load-more {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 30px;
-      background: #0077b6;
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    #load-more:hover { background: #005f99; }
-    #galerie-loading { text-align: center; color: #888; margin: 20px 0; }
+    #galerie-loading { text-align: center; color: #888; margin: 20px 0; font-style: italic; }
 
     /* Lightbox */
     #lightbox {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0,0,0,0.88);
       z-index: 9999;
       align-items: center;
       justify-content: center;
     }
     #lightbox.active { display: flex; }
-    #lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
     #lightbox-close {
       position: absolute;
-      top: 20px; right: 30px;
-      font-size: 2rem;
+      top: 18px; right: 26px;
+      font-size: 2.2rem;
       color: white;
       cursor: pointer;
+      line-height: 1;
     }
+
+    /* Bouton admin (discret) */
+    #admin-toggle {
+      display: block;
+      margin: 10px auto 0;
+      background: none;
+      border: 1px solid #ccc;
+      color: #aaa;
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    #admin-toggle:hover { color: #555; border-color: #999; }
+    #upload-zone {
+      display: none;
+      text-align: center;
+      margin: 16px auto;
+    }
+    #upload-btn {
+      background: #0077b6;
+      color: white;
+      border: none;
+      padding: 10px 28px;
+      border-radius: 25px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #upload-btn:hover { background: #005f99; }
   </style>
 </head>
 
@@ -64,9 +82,16 @@
 
 <section id="galerie">
   <h2>Galerie</h2>
+
+  <!-- Zone upload admin (cachée par défaut) -->
+  <div id="upload-zone">
+    <button id="upload-btn">&#128247; Ajouter des photos</button>
+    <p style="font-size:0.8rem;color:#999;margin-top:6px">Les photos seront visibles après rechargement de la page</p>
+  </div>
+  <button id="admin-toggle">+ Ajouter des photos</button>
+
   <p id="galerie-loading">Chargement des photos...</p>
   <div class="grid" id="galerie-grid"></div>
-  <button id="load-more" style="display:none">Voir plus</button>
 </section>
 
 <section id="tarifs">
@@ -113,20 +138,26 @@
   <img id="lightbox-img" src="" alt="">
 </div>
 
+<!-- Cloudinary Upload Widget -->
+<script src="https://upload-widget.cloudinary.com/global/all.js"></script>
+
 <script>
   const CLOUD_NAME = 'dblvskqy9';
+  const UPLOAD_PRESET = 'galerie_preset';
   const FOLDER = 'galerie';
+  const API_KEY = '197543758273783';
 
-  async function loadPhotos() {
+  // ---- Charger la galerie via Search API ----
+  async function loadGalerie() {
     const loading = document.getElementById('galerie-loading');
-    loading.style.display = 'block';
-    loading.textContent = 'Chargement...';
-
-    const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
+    const grid = document.getElementById('galerie-grid');
 
     try {
+      // Utilise l'endpoint de recherche public (lecture seule, pas de secret requis)
+      const url = `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${FOLDER}.json`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Erreur');
+
+      if (!res.ok) throw new Error('list blocked');
       const data = await res.json();
       const resources = data.resources || [];
 
@@ -138,38 +169,93 @@
         return;
       }
 
-      const grid = document.getElementById('galerie-grid');
-      resources.forEach(r => {
-        const img = document.createElement('img');
-        img.src = `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`;
-        img.alt = 'Christ Media';
-        img.loading = 'lazy';
-        img.addEventListener('click', () => openLightbox(
-          `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`
-        ));
-        grid.appendChild(img);
-      });
+      resources.forEach(r => ajouterImage(`https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
+        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`));
 
     } catch (e) {
-      loading.textContent = 'Impossible de charger les photos.';
-      loading.style.display = 'block';
+      // Fallback : essayer via tag
+      try {
+        const res2 = await fetch(`https://res.cloudinary.com/${CLOUD_NAME}/image/list/galerie.json`);
+        const data2 = await res2.json();
+        loading.style.display = 'none';
+        (data2.resources || []).forEach(r => ajouterImage(
+          `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
+          `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${r.public_id}`
+        ));
+      } catch {
+        loading.textContent = 'La galerie se chargera après l\'ajout de photos.';
+      }
     }
   }
 
+  function ajouterImage(thumbUrl, fullUrl) {
+    const grid = document.getElementById('galerie-grid');
+    const img = document.createElement('img');
+    img.src = thumbUrl;
+    img.alt = 'Christ Media';
+    img.loading = 'lazy';
+    img.addEventListener('click', () => openLightbox(fullUrl));
+    grid.appendChild(img);
+  }
+
+  // ---- Upload Widget ----
+  const widget = cloudinary.createUploadWidget({
+    cloudName: CLOUD_NAME,
+    uploadPreset: UPLOAD_PRESET,
+    folder: FOLDER,
+    sources: ['local', 'camera'],
+    multiple: true,
+    maxFiles: 50,
+    language: 'fr',
+    text: {
+      fr: {
+        or: 'Ou',
+        back: 'Retour',
+        advanced: 'Avancé',
+        close: 'Fermer',
+        no_results: 'Aucun résultat',
+        upload_label: 'Glissez vos photos ici',
+        menu: { files: 'Mes fichiers', camera: 'Caméra' }
+      }
+    }
+  }, (error, result) => {
+    if (!error && result && result.event === 'success') {
+      const info = result.info;
+      ajouterImage(
+        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${info.public_id}`,
+        `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_auto,f_auto/${info.public_id}`
+      );
+      document.getElementById('galerie-loading').style.display = 'none';
+    }
+  });
+
+  document.getElementById('upload-btn').addEventListener('click', () => widget.open());
+
+  // ---- Toggle admin ----
+  document.getElementById('admin-toggle').addEventListener('click', function() {
+    const zone = document.getElementById('upload-zone');
+    if (zone.style.display === 'block') {
+      zone.style.display = 'none';
+      this.textContent = '+ Ajouter des photos';
+    } else {
+      zone.style.display = 'block';
+      this.textContent = '✕ Fermer';
+    }
+  });
+
+  // ---- Lightbox ----
   function openLightbox(src) {
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox').classList.add('active');
   }
-
   document.getElementById('lightbox-close').addEventListener('click', () => {
     document.getElementById('lightbox').classList.remove('active');
   });
-
   document.getElementById('lightbox').addEventListener('click', function(e) {
     if (e.target === this) this.classList.remove('active');
   });
 
-  loadPhotos();
+  loadGalerie();
 </script>
 
 <script src="script.js"></script>
