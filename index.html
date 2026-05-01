@@ -132,9 +132,26 @@
   <img id="lightbox-img" src="" alt="">
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFlOvQDIxGoZ0P1yqWtfUcxPTZtH3VFiA",
+    authDomain: "christ-media-ed3c4.firebaseapp.com",
+    databaseURL: "https://christ-media-ed3c4-default-rtdb.firebaseio.com",
+    projectId: "christ-media-ed3c4",
+    storageBucket: "christ-media-ed3c4.firebasestorage.app",
+    messagingSenderId: "199057756863",
+    appId: "1:199057756863:web:846125410c9527c476ac0a",
+    measurementId: "G-0EY9SCCBZK"
+  };
+
+  const app = initializeApp(firebaseConfig, 'site');
+  const db = getDatabase(app);
+  const galerieRef = ref(db, 'site_galerie');
+
   const IMGBB_KEY = 'c787ba730f51f5a1884c77e899368a77';
-  const STORAGE_KEY = 'christmedia_galerie';
 
   // Upload ImgBB
   document.getElementById('upload-btn').addEventListener('click', () => {
@@ -156,8 +173,7 @@
           if (data.success) {
             const thumb = data.data.thumb ? data.data.thumb.url : data.data.url;
             const full = data.data.url;
-            sauvegarderImage(thumb, full);
-            ajouterImage(thumb, full);
+            push(galerieRef, { thumb, full });
           }
         } catch(err) { console.error(err); }
       }
@@ -178,23 +194,20 @@
     }
   });
 
-  // Sauvegarder dans localStorage
-  function sauvegarderImage(thumb, full) {
-    const galerie = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    galerie.push({ thumb, full });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(galerie));
-  }
-
-  // Charger la galerie depuis localStorage
+  // Charger la galerie depuis Firebase
   function loadGalerie() {
     const loading = document.getElementById('galerie-loading');
-    const galerie = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    if (galerie.length === 0) {
-      loading.textContent = 'Aucune photo pour le moment.';
-      return;
-    }
-    loading.style.display = 'none';
-    galerie.forEach(img => ajouterImage(img.thumb, img.full));
+    onValue(galerieRef, (snapshot) => {
+      document.getElementById('galerie-grid').innerHTML = '';
+      const data = snapshot.val();
+      if (!data) {
+        loading.textContent = 'Aucune photo pour le moment.';
+        loading.style.display = 'block';
+        return;
+      }
+      loading.style.display = 'none';
+      Object.values(data).forEach(img => ajouterImage(img.thumb, img.full));
+    });
   }
 
   function ajouterImage(thumbUrl, fullUrl) {
