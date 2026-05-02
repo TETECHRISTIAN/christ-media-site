@@ -79,6 +79,36 @@
       cursor: pointer;
     }
     #upload-btn:hover { background: #005f99; }
+
+    /* Mode sombre */
+    body.dark { background:#121212; color:#e0e0e0; }
+    body.dark header { background:#1e1e1e; }
+    body.dark .card { background:#1e1e1e; color:#e0e0e0; }
+    body.dark section { background:#121212; }
+    body.dark #avis-form { background:#1e1e1e; }
+    body.dark input, body.dark textarea, body.dark select { background:#2a2a2a; color:#e0e0e0; border-color:#444; }
+    body.dark #avis-liste > div { background:#1e1e1e; }
+    body.dark footer { background:#1e1e1e; color:#aaa; }
+    body.dark #stats { background:#1a3a5c; }
+    body.dark nav a { color:#ccc; }
+    body.dark .upload-zone-inner { background:#1e1e1e; }
+
+    #dark-toggle {
+      position: fixed;
+      bottom: 80px;
+      right: 18px;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 9998;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    body.dark #dark-toggle { background: #f5c518; color: #111; }
   </style>
 </head>
 <body>
@@ -271,6 +301,8 @@
 <footer>
   <p>© 2026 CHRIST MEDIA - Tsévié, Togo</p>
 </footer>
+
+<button id="dark-toggle" title="Mode sombre">🌙</button>
 
 <a class="whatsapp" href="https://wa.me/22890260658" target="_blank">💬</a>
 
@@ -705,6 +737,20 @@
 
   // Màj stat devis dans admin (optionnel)
   onValue(devisRef, () => {});
+
+  // ===== MODE SOMBRE =====
+  const darkBtn = document.getElementById('dark-toggle');
+  if (localStorage.getItem('dark') === '1') {
+    document.body.classList.add('dark');
+    darkBtn.textContent = '☀️';
+  }
+  darkBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    localStorage.setItem('dark', isDark ? '1' : '0');
+    darkBtn.textContent = isDark ? '☀️' : '🌙';
+  });
+
   const visitRef = ref(db, 'site_stats/visiteurs');
   if (!sessionStorage.getItem('visited')) {
     sessionStorage.setItem('visited', '1');
