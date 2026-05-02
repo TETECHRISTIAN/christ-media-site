@@ -141,6 +141,18 @@
     </div>
 
     <button id="upload-btn" style="background:#0077b6;color:white;border:none;padding:10px 28px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;">📷 Ajouter des photos</button>
+    <button id="manage-btn" style="background:#6c757d;color:white;border:none;padding:10px 28px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;margin-top:10px;">🗂️ Gérer les photos existantes</button>
+  </div>
+
+  <!-- Modal gestion photos -->
+  <div id="manage-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;overflow-y:auto;padding:20px;">
+    <div style="max-width:700px;margin:0 auto;background:white;border-radius:16px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 style="margin:0;">🗂️ Gérer les photos</h3>
+        <span id="manage-close" style="cursor:pointer;font-size:1.5rem;">✕</span>
+      </div>
+      <div id="manage-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+    </div>
   </div>
 
   <!-- Filtres catégories -->
@@ -354,15 +366,66 @@
     filtered.forEach(img => ajouterImage(img.thumb, img.full));
   }
 
+  // ===== GÉRER PHOTOS EXISTANTES =====
+  let allPhotosData = {}; // clé Firebase -> objet photo
+
+  document.getElementById('manage-btn').addEventListener('click', () => {
+    document.getElementById('manage-modal').style.display = 'block';
+    renderManageGrid();
+  });
+
+  document.getElementById('manage-close').addEventListener('click', () => {
+    document.getElementById('manage-modal').style.display = 'none';
+  });
+
+  function renderManageGrid() {
+    const grid = document.getElementById('manage-grid');
+    grid.innerHTML = '';
+    Object.entries(allPhotosData).forEach(([key, photo]) => {
+      const div = document.createElement('div');
+      div.style.cssText = 'border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);background:#fff;';
+      
+      const catOptions = categories.filter(c => c !== 'Tous').map(c => 
+        `<option value="${c}" ${photo.categorie === c ? 'selected' : ''}>${c}</option>`
+      ).join('');
+
+      div.innerHTML = `
+        <img src="${photo.thumb}" style="width:100%;height:110px;object-fit:cover;display:block;">
+        <div style="padding:8px;">
+          <select data-key="${key}" class="cat-assign" style="width:100%;padding:5px;border:1px solid #ddd;border-radius:6px;font-size:0.85rem;margin-bottom:6px;">
+            <option value="">-- Catégorie --</option>
+            ${catOptions}
+          </select>
+          <button data-key="${key}" class="save-assign-btn" style="width:100%;background:#0077b6;color:white;border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✓ Enregistrer</button>
+        </div>
+      `;
+      grid.appendChild(div);
+    });
+
+    // Boutons enregistrer
+    grid.querySelectorAll('.save-assign-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const key = btn.dataset.key;
+        const sel = grid.querySelector(`.cat-assign[data-key="${key}"]`);
+        const cat = sel.value;
+        if (!cat) { alert('Choisissez une catégorie'); return; }
+        await set(ref(db, `site_galerie/${key}/categorie`), cat);
+        btn.textContent = '✓ Sauvegardé !';
+        btn.style.background = '#28a745';
+        setTimeout(() => { btn.textContent = '✓ Enregistrer'; btn.style.background = '#0077b6'; }, 2000);
+      });
+    });
+  }
+
   onValue(galerieRef, (snapshot) => {
     const data = snapshot.val();
+    allPhotosData = data || {};
     allPhotos = data ? Object.values(data) : [];
     if (allPhotos.length === 0) {
       document.getElementById('galerie-loading').textContent = 'Aucune photo pour le moment.';
       document.getElementById('galerie-loading').style.display = 'block';
     }
     renderPhotos();
-    // Màj stat photos
     document.getElementById('stat-photos').textContent = allPhotos.length;
   });
 
