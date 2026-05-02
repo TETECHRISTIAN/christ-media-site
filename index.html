@@ -125,11 +125,50 @@
   </nav>
 </header>
 
-<section class="hero">
-  <h1>Capturez vos moments précieux</h1>
-  <p>Photo • Vidéo • Mariage • Événements</p>
-  <a class="btn" href="https://wa.me/22890260658" target="_blank">Réserver sur WhatsApp</a>
+<section class="hero" style="position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+  <!-- Slides arrière-plan -->
+  <div id="hero-slides" style="position:absolute;inset:0;z-index:0;">
+    <div class="hero-slide active" style="background:linear-gradient(135deg,#0077b6,#023e8a);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#1a1a2e,#16213e);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#2d6a4f,#1b4332);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#6a0572,#3d0066);"></div>
+  </div>
+
+  <!-- Contenu -->
+  <div style="position:relative;z-index:2;text-align:center;padding:20px;" id="hero-content">
+    <h1 id="hero-title" style="font-size:clamp(2rem,6vw,4rem);margin-bottom:16px;animation:fadeInUp 0.8s ease;">Capturez vos moments précieux</h1>
+    <p id="hero-sub" style="font-size:clamp(1rem,3vw,1.4rem);margin-bottom:30px;opacity:0.9;animation:fadeInUp 1s ease;">Photo • Vidéo • Mariage • Événements</p>
+    <a class="btn" href="https://wa.me/22890260658" target="_blank" style="animation:fadeInUp 1.2s ease;">Réserver sur WhatsApp</a>
+  </div>
+
+  <!-- Indicateurs -->
+  <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2;" id="hero-dots"></div>
 </section>
+
+<style>
+  .hero-slide {
+    position:absolute;inset:0;
+    opacity:0;
+    transition:opacity 1.2s ease;
+  }
+  .hero-slide.active { opacity:1; }
+
+  @keyframes fadeInUp {
+    from { opacity:0; transform:translateY(30px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  /* Animations galerie */
+  #galerie-grid .grid-item {
+    opacity:0;
+    transform:translateY(20px);
+    transition:opacity 0.5s ease, transform 0.5s ease;
+  }
+  #galerie-grid .grid-item.visible {
+    opacity:1;
+    transform:translateY(0);
+  }
+</style>
 
 <section id="stats" style="background:#0077b6;color:white;padding:30px 20px;text-align:center;">
   <h2 style="color:white;margin-bottom:20px;">Nos chiffres</h2>
@@ -621,9 +660,11 @@
     wrapper.addEventListener('mouseenter', () => wa.style.opacity = '1');
     wrapper.addEventListener('mouseleave', () => { if (!isMobile) wa.style.opacity = '0'; });
 
+    wrapper.classList.add('grid-item');
     wrapper.appendChild(img);
     wrapper.appendChild(wa);
     grid.appendChild(wrapper);
+    observer.observe(wrapper);
     document.getElementById('galerie-loading').style.display = 'none';
   }
 
@@ -757,6 +798,50 @@
 
   // Màj stat devis dans admin (optionnel)
   onValue(devisRef, () => {});
+
+  // ===== SLIDER HERO =====
+  const heroTexts = [
+    { title: 'Capturez vos moments précieux', sub: 'Photo • Vidéo • Mariage • Événements' },
+    { title: 'Votre mariage, notre passion', sub: 'Des souvenirs inoubliables pour toujours' },
+    { title: 'Studio photo professionnel', sub: 'Portraits • Mode • Entreprise' },
+    { title: 'Chaque instant mérite d\'être immortalisé', sub: 'Anniversaires • Baptêmes • Événements' }
+  ];
+  const slides = document.querySelectorAll('.hero-slide');
+  const dotsContainer = document.getElementById('hero-dots');
+  let heroIndex = 0;
+
+  // Créer les points
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.style.cssText = `width:10px;height:10px;border-radius:50%;background:${i === 0 ? 'white' : 'rgba(255,255,255,0.4)'};cursor:pointer;transition:background 0.3s;`;
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  function goToSlide(n) {
+    slides[heroIndex].classList.remove('active');
+    dotsContainer.children[heroIndex].style.background = 'rgba(255,255,255,0.4)';
+    heroIndex = n % slides.length;
+    slides[heroIndex].classList.add('active');
+    dotsContainer.children[heroIndex].style.background = 'white';
+    // Animer le texte
+    const t = document.getElementById('hero-title');
+    const s = document.getElementById('hero-sub');
+    t.style.animation = 'none'; s.style.animation = 'none';
+    setTimeout(() => {
+      t.textContent = heroTexts[heroIndex].title;
+      s.textContent = heroTexts[heroIndex].sub;
+      t.style.animation = 'fadeInUp 0.8s ease';
+      s.style.animation = 'fadeInUp 1s ease';
+    }, 50);
+  }
+
+  setInterval(() => goToSlide(heroIndex + 1), 5000);
+
+  // ===== ANIMATIONS GALERIE (Intersection Observer) =====
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
 
   // ===== MODE SOMBRE =====
   const darkBtn = document.getElementById('dark-toggle');
