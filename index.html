@@ -35,9 +35,17 @@
     }
     #lightbox-prev { left: 20px; }
     #lightbox-next { right: 20px; }
+    #lightbox-close {
+      position: absolute;
+      top: 18px; right: 26px;
       font-size: 2.2rem;
       color: white;
       cursor: pointer;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10000;
     }
 
     #admin-toggle {
