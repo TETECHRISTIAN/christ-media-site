@@ -109,6 +109,24 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     body.dark #dark-toggle { background: #f5c518; color: #111; }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #0077b6;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      z-index: 99999;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(-80px);
+      transition: transform 0.4s ease;
+    }
+    #toast.show { transform: translateY(0); }
   </style>
 </head>
 <body>
@@ -346,6 +364,8 @@
 <footer>
   <p>© 2026 CHRIST MEDIA - Tsévié, Togo</p>
 </footer>
+
+<div id="toast"></div>
 
 <button id="dark-toggle" title="Mode sombre">🌙</button>
 
@@ -715,6 +735,7 @@
   // ===== TÉMOIGNAGES =====
   const avisRef = ref(db, 'site_avis');
   let selectedStars = 0;
+  let avisCount = 0; // pour détecter les nouveaux
 
   const starsEl = document.getElementById('stars-input');
   starsEl.querySelectorAll('span').forEach(star => {
@@ -733,7 +754,13 @@
       alert('Merci de remplir tous les champs et de donner une note.');
       return;
     }
+    const stars = '⭐'.repeat(selectedStars);
     await push(avisRef, { nom, message, stars: selectedStars, date: new Date().toLocaleDateString('fr-FR') });
+
+    // Notifier par WhatsApp
+    const texte = `🔔 *Nouvel avis sur Christ Media !*\n\n👤 ${nom}\n${stars}\n💬 "${message}"`;
+    window.open(`https://wa.me/22890260658?text=${encodeURIComponent(texte)}`, '_blank');
+
     document.getElementById('avis-nom').value = '';
     document.getElementById('avis-message').value = '';
     selectedStars = 0;
@@ -743,11 +770,24 @@
     setTimeout(() => msg.style.display = 'none', 3000);
   });
 
+  // Badge notification admin
+  let lastAvisCount = parseInt(sessionStorage.getItem('lastAvisCount') || '0');
+
   onValue(avisRef, (snapshot) => {
     const liste = document.getElementById('avis-liste');
     liste.innerHTML = '';
     const data = snapshot.val();
-    document.getElementById('stat-avis').textContent = data ? Object.keys(data).length : 0;
+    const count = data ? Object.keys(data).length : 0;
+    document.getElementById('stat-avis').textContent = count;
+
+    // Badge nouveaux avis pour admin
+    if (count > lastAvisCount && lastAvisCount > 0) {
+      const diff = count - lastAvisCount;
+      afficherToast(`🔔 ${diff} nouvel avis reçu !`);
+    }
+    lastAvisCount = count;
+    sessionStorage.setItem('lastAvisCount', count);
+
     if (!data) {
       liste.innerHTML = '<p style="text-align:center;color:#888;">Aucun témoignage pour le moment.</p>';
       return;
@@ -850,6 +890,14 @@
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
+
+  // ===== TOAST =====
+  function afficherToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 4000);
+  }
 
   // ===== STATS CATÉGORIES =====
   function renderStatsCats() {
