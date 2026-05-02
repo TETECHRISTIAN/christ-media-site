@@ -121,8 +121,19 @@
 <section id="galerie">
   <h2>Galerie</h2>
 
-  <!-- Zone admin -->
-  <button id="admin-toggle">+ Ajouter des photos</button>
+  <!-- Bouton admin -->
+  <button id="admin-toggle">🔐 Admin</button>
+
+  <!-- Modal mot de passe -->
+  <div id="admin-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:white;border-radius:16px;padding:30px;width:300px;text-align:center;">
+      <h3 style="margin-top:0;">🔐 Accès Admin</h3>
+      <input id="admin-pwd" type="password" placeholder="Mot de passe" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;margin-bottom:10px;">
+      <p id="pwd-error" style="color:red;display:none;margin:4px 0 10px;font-size:0.85rem;">Mot de passe incorrect</p>
+      <button id="pwd-submit" style="background:#0077b6;color:white;border:none;padding:10px 28px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;">Entrer</button>
+      <br><button id="pwd-cancel" style="background:none;border:none;color:#aaa;cursor:pointer;margin-top:10px;font-size:0.85rem;">Annuler</button>
+    </div>
+  </div>
   <div id="upload-zone" style="display:none;max-width:500px;margin:16px auto;padding:20px;background:#f9f9f9;border-radius:12px;">
     
     <!-- Gestion catégories -->
@@ -378,16 +389,53 @@
     input.click();
   });
 
-  // Toggle admin
-  document.getElementById('admin-toggle').addEventListener('click', function() {
-    const zone = document.getElementById('upload-zone');
-    if (zone.style.display === 'block') {
-      zone.style.display = 'none';
-      this.textContent = '+ Ajouter des photos';
+  // ===== MOT DE PASSE ADMIN =====
+  const ADMIN_PWD = 'christmedia2026';
+  let isAdmin = sessionStorage.getItem('cm_admin') === '1';
+
+  const adminModal = document.getElementById('admin-modal');
+  adminModal.style.display = 'none';
+
+  document.getElementById('admin-toggle').addEventListener('click', () => {
+    if (isAdmin) {
+      // Déjà connecté — toggle la zone
+      const zone = document.getElementById('upload-zone');
+      if (zone.style.display === 'block') {
+        zone.style.display = 'none';
+        document.getElementById('admin-toggle').textContent = '🔐 Admin';
+      } else {
+        zone.style.display = 'block';
+        document.getElementById('admin-toggle').textContent = '✕ Fermer Admin';
+      }
     } else {
-      zone.style.display = 'block';
-      this.textContent = '✕ Fermer';
+      // Afficher modal mot de passe
+      adminModal.style.display = 'flex';
+      document.getElementById('admin-pwd').focus();
     }
+  });
+
+  document.getElementById('pwd-submit').addEventListener('click', () => {
+    const pwd = document.getElementById('admin-pwd').value;
+    if (pwd === ADMIN_PWD) {
+      isAdmin = true;
+      sessionStorage.setItem('cm_admin', '1');
+      adminModal.style.display = 'none';
+      document.getElementById('upload-zone').style.display = 'block';
+      document.getElementById('admin-toggle').textContent = '✕ Fermer Admin';
+      document.getElementById('admin-pwd').value = '';
+    } else {
+      document.getElementById('pwd-error').style.display = 'block';
+    }
+  });
+
+  document.getElementById('admin-pwd').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') document.getElementById('pwd-submit').click();
+  });
+
+  document.getElementById('pwd-cancel').addEventListener('click', () => {
+    adminModal.style.display = 'none';
+    document.getElementById('admin-pwd').value = '';
+    document.getElementById('pwd-error').style.display = 'none';
   });
 
   // ===== GALERIE =====
