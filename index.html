@@ -120,10 +120,32 @@
 
 <section id="galerie">
   <h2>Galerie</h2>
-  <div id="upload-zone">
-    <button id="upload-btn">&#128247; Ajouter des photos</button>
-  </div>
+
+  <!-- Zone admin -->
   <button id="admin-toggle">+ Ajouter des photos</button>
+  <div id="upload-zone" style="display:none;max-width:500px;margin:16px auto;padding:20px;background:#f9f9f9;border-radius:12px;">
+    
+    <!-- Gestion catégories -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:0.9rem;font-weight:600;">Catégorie :</label>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <select id="cat-select" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;">
+          <option value="">-- Choisir --</option>
+        </select>
+        <button id="new-cat-btn" style="background:#0077b6;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:0.85rem;">+ Nouvelle</button>
+      </div>
+      <div id="new-cat-zone" style="display:none;margin-top:8px;display:none;gap:8px;flex-direction:row;">
+        <input id="new-cat-input" type="text" placeholder="Nom de la catégorie" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:0.95rem;">
+        <button id="save-cat-btn" style="background:#28a745;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;">✓</button>
+      </div>
+    </div>
+
+    <button id="upload-btn" style="background:#0077b6;color:white;border:none;padding:10px 28px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;">📷 Ajouter des photos</button>
+  </div>
+
+  <!-- Filtres catégories -->
+  <div id="filtres" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:16px 0;"></div>
+
   <p id="galerie-loading">Chargement des photos...</p>
   <div class="grid" id="galerie-grid"></div>
 </section>
@@ -200,7 +222,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, push, onValue, runTransaction, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  import { getDatabase, ref, push, onValue, runTransaction, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFlOvQDIxGoZ0P1yqWtfUcxPTZtH3VFiA",
@@ -216,11 +238,69 @@
   const app = initializeApp(firebaseConfig, 'site');
   const db = getDatabase(app);
   const galerieRef = ref(db, 'site_galerie');
+  const catsRef = ref(db, 'site_categories');
 
   const IMGBB_KEY = 'c787ba730f51f5a1884c77e899368a77';
+  let activeFilter = 'Tous';
+  let allPhotos = [];
 
-  // Upload ImgBB
+  // ===== CATÉGORIES =====
+  let categories = ['Tous'];
+
+  function renderCategories() {
+    // Filtres visiteurs
+    const filtres = document.getElementById('filtres');
+    filtres.innerHTML = '';
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.textContent = cat;
+      btn.style.cssText = `padding:6px 16px;border-radius:20px;border:2px solid #0077b6;background:${cat === activeFilter ? '#0077b6' : 'white'};color:${cat === activeFilter ? 'white' : '#0077b6'};cursor:pointer;font-size:0.9rem;`;
+      btn.addEventListener('click', () => {
+        activeFilter = cat;
+        renderCategories();
+        renderPhotos();
+      });
+      filtres.appendChild(btn);
+    });
+
+    // Select upload
+    const sel = document.getElementById('cat-select');
+    const current = sel.value;
+    sel.innerHTML = '<option value="">-- Choisir --</option>';
+    categories.filter(c => c !== 'Tous').forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat;
+      opt.textContent = cat;
+      if (cat === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  // Charger catégories depuis Firebase
+  onValue(catsRef, (snap) => {
+    const data = snap.val();
+    categories = ['Tous', ...(data ? Object.values(data) : [])];
+    renderCategories();
+  });
+
+  // Nouvelle catégorie
+  document.getElementById('new-cat-btn').addEventListener('click', () => {
+    const zone = document.getElementById('new-cat-zone');
+    zone.style.display = zone.style.display === 'none' ? 'flex' : 'none';
+  });
+
+  document.getElementById('save-cat-btn').addEventListener('click', () => {
+    const nom = document.getElementById('new-cat-input').value.trim();
+    if (!nom) return;
+    push(catsRef, nom);
+    document.getElementById('new-cat-input').value = '';
+    document.getElementById('new-cat-zone').style.display = 'none';
+  });
+
+  // ===== UPLOAD =====
   document.getElementById('upload-btn').addEventListener('click', () => {
+    const cat = document.getElementById('cat-select').value;
+    if (!cat) { alert('Choisissez une catégorie d\'abord !'); return; }
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -239,7 +319,7 @@
           if (data.success) {
             const thumb = data.data.thumb ? data.data.thumb.url : data.data.url;
             const full = data.data.url;
-            push(galerieRef, { thumb, full });
+            push(galerieRef, { thumb, full, categorie: cat });
           }
         } catch(err) { console.error(err); }
       }
@@ -260,21 +340,31 @@
     }
   });
 
-  // Charger la galerie depuis Firebase
-  function loadGalerie() {
-    const loading = document.getElementById('galerie-loading');
-    onValue(galerieRef, (snapshot) => {
-      document.getElementById('galerie-grid').innerHTML = '';
-      const data = snapshot.val();
-      if (!data) {
-        loading.textContent = 'Aucune photo pour le moment.';
-        loading.style.display = 'block';
-        return;
-      }
-      loading.style.display = 'none';
-      Object.values(data).forEach(img => ajouterImage(img.thumb, img.full));
-    });
+  // ===== GALERIE =====
+  function renderPhotos() {
+    const grid = document.getElementById('galerie-grid');
+    grid.innerHTML = '';
+    const filtered = activeFilter === 'Tous' ? allPhotos : allPhotos.filter(p => p.categorie === activeFilter);
+    if (filtered.length === 0) {
+      document.getElementById('galerie-loading').textContent = 'Aucune photo dans cette catégorie.';
+      document.getElementById('galerie-loading').style.display = 'block';
+      return;
+    }
+    document.getElementById('galerie-loading').style.display = 'none';
+    filtered.forEach(img => ajouterImage(img.thumb, img.full));
   }
+
+  onValue(galerieRef, (snapshot) => {
+    const data = snapshot.val();
+    allPhotos = data ? Object.values(data) : [];
+    if (allPhotos.length === 0) {
+      document.getElementById('galerie-loading').textContent = 'Aucune photo pour le moment.';
+      document.getElementById('galerie-loading').style.display = 'block';
+    }
+    renderPhotos();
+    // Màj stat photos
+    document.getElementById('stat-photos').textContent = allPhotos.length;
+  });
 
   function ajouterImage(thumbUrl, fullUrl) {
     const grid = document.getElementById('galerie-grid');
@@ -285,10 +375,9 @@
     img.loading = 'lazy';
     img.addEventListener('click', () => openLightbox(fullUrl));
     grid.appendChild(img);
-    document.getElementById('galerie-loading').style.display = 'none';
   }
 
-  // Lightbox avec navigation
+  // ===== LIGHTBOX =====
   let currentIndex = 0;
   let allImages = [];
 
@@ -311,7 +400,6 @@
     document.getElementById('lightbox-img').src = allImages[currentIndex];
   });
 
-  // Navigation clavier
   document.addEventListener('keydown', (e) => {
     if (!document.getElementById('lightbox').classList.contains('active')) return;
     if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
@@ -329,7 +417,6 @@
   const avisRef = ref(db, 'site_avis');
   let selectedStars = 0;
 
-  // Gestion des étoiles
   const starsEl = document.getElementById('stars-input');
   starsEl.querySelectorAll('span').forEach(star => {
     star.addEventListener('click', () => {
@@ -340,7 +427,6 @@
     });
   });
 
-  // Envoi témoignage
   document.getElementById('avis-submit').addEventListener('click', async () => {
     const nom = document.getElementById('avis-nom').value.trim();
     const message = document.getElementById('avis-message').value.trim();
@@ -358,11 +444,11 @@
     setTimeout(() => msg.style.display = 'none', 3000);
   });
 
-  // Afficher témoignages
   onValue(avisRef, (snapshot) => {
     const liste = document.getElementById('avis-liste');
     liste.innerHTML = '';
     const data = snapshot.val();
+    document.getElementById('stat-avis').textContent = data ? Object.keys(data).length : 0;
     if (!data) {
       liste.innerHTML = '<p style="text-align:center;color:#888;">Aucun témoignage pour le moment.</p>';
       return;
@@ -385,7 +471,6 @@
 
   // ===== VISITEURS =====
   const visitRef = ref(db, 'site_stats/visiteurs');
-  // Incrémenter si pas déjà visité cette session
   if (!sessionStorage.getItem('visited')) {
     sessionStorage.setItem('visited', '1');
     runTransaction(visitRef, (current) => (current || 0) + 1);
@@ -394,21 +479,7 @@
     document.getElementById('stat-visiteurs').textContent = snap.val() || 0;
   });
 
-  // Compteur photos
-  onValue(galerieRef, (snap) => {
-    const data = snap.val();
-    document.getElementById('stat-photos').textContent = data ? Object.keys(data).length : 0;
-  });
-
-  // Compteur avis
-  onValue(ref(db, 'site_avis'), (snap) => {
-    const data = snap.val();
-    document.getElementById('stat-avis').textContent = data ? Object.keys(data).length : 0;
-  });
-
-  loadGalerie();
 </script>
-
 
 <script>
   // YouTube Videos
