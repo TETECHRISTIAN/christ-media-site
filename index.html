@@ -245,7 +245,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, push, onValue, runTransaction, set } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  import { getDatabase, ref, push, onValue, runTransaction, set, remove } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFlOvQDIxGoZ0P1yqWtfUcxPTZtH3VFiA",
@@ -482,10 +482,21 @@
             <option value="">-- Catégorie --</option>
             ${catOptions}
           </select>
-          <button data-key="${key}" class="save-assign-btn" style="width:100%;background:#0077b6;color:white;border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:0.8rem;">✓ Enregistrer</button>
+          <button data-key="${key}" class="save-assign-btn" style="width:100%;background:#0077b6;color:white;border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:0.8rem;margin-bottom:4px;">✓ Enregistrer</button>
+          <button data-key="${key}" class="delete-photo-btn" style="width:100%;background:#dc3545;color:white;border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:0.8rem;">🗑️ Supprimer</button>
         </div>
       `;
       grid.appendChild(div);
+    });
+
+    // Boutons supprimer
+    grid.querySelectorAll('.delete-photo-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Supprimer cette photo définitivement ?')) return;
+        const key = btn.dataset.key;
+        await remove(ref(db, `site_galerie/${key}`));
+        btn.closest('div').parentElement.remove();
+      });
     });
 
     // Boutons enregistrer
