@@ -21,9 +21,20 @@
     }
     #lightbox.active { display: flex; }
     #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
-    #lightbox-close {
+    #lightbox-prev, #lightbox-next {
       position: absolute;
-      top: 18px; right: 26px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      color: white;
+      cursor: pointer;
+      padding: 10px 20px;
+      user-select: none;
+      background: rgba(0,0,0,0.3);
+      border-radius: 50%;
+    }
+    #lightbox-prev { left: 20px; }
+    #lightbox-next { right: 20px; }
       font-size: 2.2rem;
       color: white;
       cursor: pointer;
@@ -129,7 +140,9 @@
 
 <div id="lightbox">
   <span id="lightbox-close">&#x2715;</span>
+  <span id="lightbox-prev">&#8592;</span>
   <img id="lightbox-img" src="" alt="">
+  <span id="lightbox-next">&#8594;</span>
 </div>
 
 <script type="module">
@@ -214,6 +227,7 @@
     const grid = document.getElementById('galerie-grid');
     const img = document.createElement('img');
     img.src = thumbUrl;
+    img.dataset.full = fullUrl;
     img.alt = 'Christ Media';
     img.loading = 'lazy';
     img.addEventListener('click', () => openLightbox(fullUrl));
@@ -221,11 +235,36 @@
     document.getElementById('galerie-loading').style.display = 'none';
   }
 
-  // Lightbox
+  // Lightbox avec navigation
+  let currentIndex = 0;
+  let allImages = [];
+
   function openLightbox(src) {
+    allImages = Array.from(document.querySelectorAll('#galerie-grid img')).map(i => i.dataset.full || i.src);
+    currentIndex = allImages.indexOf(src);
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox').classList.add('active');
   }
+
+  document.getElementById('lightbox-prev').addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+    document.getElementById('lightbox-img').src = allImages[currentIndex];
+  });
+
+  document.getElementById('lightbox-next').addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentIndex = (currentIndex + 1) % allImages.length;
+    document.getElementById('lightbox-img').src = allImages[currentIndex];
+  });
+
+  // Navigation clavier
+  document.addEventListener('keydown', (e) => {
+    if (!document.getElementById('lightbox').classList.contains('active')) return;
+    if (e.key === 'ArrowLeft') document.getElementById('lightbox-prev').click();
+    if (e.key === 'ArrowRight') document.getElementById('lightbox-next').click();
+    if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('active');
+  });
   document.getElementById('lightbox-close').addEventListener('click', () => {
     document.getElementById('lightbox').classList.remove('active');
   });
