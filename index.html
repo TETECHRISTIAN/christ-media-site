@@ -243,6 +243,12 @@
   <div class="grid" id="galerie-grid"></div>
 </section>
 
+<section id="stats-cats" style="padding:30px 20px;max-width:800px;margin:0 auto;">
+  <h2 style="text-align:center;">📊 Statistiques par catégorie</h2>
+  <p style="text-align:center;color:#888;font-size:0.9rem;">Visible uniquement par l'admin</p>
+  <div id="stats-cats-grid" style="display:none;"></div>
+</section>
+
 <section id="tarifs">
   <h2>Nos Tarifs</h2>
   <div class="cards">
@@ -532,6 +538,7 @@
       document.getElementById('upload-zone').style.display = 'block';
       document.getElementById('admin-toggle').textContent = '✕ Fermer Admin';
       document.getElementById('admin-pwd').value = '';
+      renderStatsCats();
     } else {
       document.getElementById('pwd-error').style.display = 'block';
     }
@@ -633,6 +640,7 @@
     }
     renderPhotos();
     document.getElementById('stat-photos').textContent = allPhotos.length;
+    renderStatsCats();
   });
 
   function ajouterImage(thumbUrl, fullUrl) {
@@ -842,6 +850,44 @@
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
+
+  // ===== STATS CATÉGORIES =====
+  function renderStatsCats() {
+    if (!isAdmin) return;
+    const grid = document.getElementById('stats-cats-grid');
+    grid.style.display = 'block';
+    grid.innerHTML = '';
+
+    // Compter photos par catégorie
+    const compteur = {};
+    allPhotos.forEach(p => {
+      const cat = p.categorie || 'Sans catégorie';
+      compteur[cat] = (compteur[cat] || 0) + 1;
+    });
+
+    const total = allPhotos.length || 1;
+    const sorted = Object.entries(compteur).sort((a, b) => b[1] - a[1]);
+
+    sorted.forEach(([cat, count]) => {
+      const pct = Math.round((count / total) * 100);
+      const div = document.createElement('div');
+      div.style.cssText = 'margin-bottom:14px;';
+      div.innerHTML = `
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-weight:600;">${cat}</span>
+          <span style="color:#0077b6;">${count} photo${count > 1 ? 's' : ''} — ${pct}%</span>
+        </div>
+        <div style="background:#e9ecef;border-radius:20px;height:10px;overflow:hidden;">
+          <div style="background:#0077b6;height:100%;width:${pct}%;border-radius:20px;transition:width 1s ease;"></div>
+        </div>
+      `;
+      grid.appendChild(div);
+    });
+
+    if (sorted.length === 0) {
+      grid.innerHTML = '<p style="text-align:center;color:#888;">Aucune photo pour le moment.</p>';
+    }
+  }
 
   // ===== MODE SOMBRE =====
   const darkBtn = document.getElementById('dark-toggle');
