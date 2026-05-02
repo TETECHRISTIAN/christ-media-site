@@ -92,6 +92,24 @@
   <a class="btn" href="https://wa.me/22890260658" target="_blank">Réserver sur WhatsApp</a>
 </section>
 
+<section id="stats" style="background:#0077b6;color:white;padding:30px 20px;text-align:center;">
+  <h2 style="color:white;margin-bottom:20px;">Nos chiffres</h2>
+  <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
+    <div>
+      <div id="stat-visiteurs" style="font-size:2.5rem;font-weight:bold;">—</div>
+      <div style="font-size:0.9rem;opacity:0.85;">Visiteurs</div>
+    </div>
+    <div>
+      <div id="stat-photos" style="font-size:2.5rem;font-weight:bold;">—</div>
+      <div style="font-size:0.9rem;opacity:0.85;">Photos</div>
+    </div>
+    <div>
+      <div id="stat-avis" style="font-size:2.5rem;font-weight:bold;">—</div>
+      <div style="font-size:0.9rem;opacity:0.85;">Avis clients</div>
+    </div>
+  </div>
+</section>
+
 <section id="galerie">
   <h2>Galerie</h2>
   <div id="upload-zone">
@@ -174,7 +192,7 @@
 
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-  import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+  import { getDatabase, ref, push, onValue, runTransaction, increment } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyAFlOvQDIxGoZ0P1yqWtfUcxPTZtH3VFiA",
@@ -355,6 +373,29 @@
       `;
       liste.appendChild(div);
     });
+  });
+
+  // ===== VISITEURS =====
+  const visitRef = ref(db, 'site_stats/visiteurs');
+  // Incrémenter si pas déjà visité cette session
+  if (!sessionStorage.getItem('visited')) {
+    sessionStorage.setItem('visited', '1');
+    runTransaction(visitRef, (current) => (current || 0) + 1);
+  }
+  onValue(visitRef, (snap) => {
+    document.getElementById('stat-visiteurs').textContent = snap.val() || 0;
+  });
+
+  // Compteur photos
+  onValue(galerieRef, (snap) => {
+    const data = snap.val();
+    document.getElementById('stat-photos').textContent = data ? Object.keys(data).length : 0;
+  });
+
+  // Compteur avis
+  onValue(ref(db, 'site_avis'), (snap) => {
+    const data = snap.val();
+    document.getElementById('stat-avis').textContent = data ? Object.keys(data).length : 0;
   });
 
   loadGalerie();
