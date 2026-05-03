@@ -151,6 +151,7 @@
   <nav>
     <a href="#apropos">À propos</a>
     <a href="#galerie">Galerie</a>
+    <a href="#boutique">Boutique</a>
     <a href="#videos">Vidéos</a>
     <a href="#tarifs">Tarifs</a>
     <a href="#devis">Devis</a>
@@ -464,6 +465,82 @@
     <p id="devis-msg" style="text-align:center;color:#10b981;display:none;margin-top:10px;font-weight:500;">✅ Demande envoyée ! Nous vous contacterons bientôt.</p>
   </div>
 </section>
+
+<!-- ===== BOUTIQUE ===== -->
+<section id="boutique" style="text-align:center;">
+  <div class="section-tag">Boutique</div>
+  <h2>Nos Produits & Services</h2>
+  <p style="margin-bottom:16px;">Commandez en ligne, payez à la livraison ou par Mobile Money</p>
+
+  <!-- Panier flottant -->
+  <div id="cart-badge" style="display:none;position:fixed;top:72px;right:18px;background:var(--blue);color:white;border-radius:50px;padding:8px 16px;font-family:var(--font-display);font-size:0.85rem;font-weight:700;z-index:999;cursor:pointer;box-shadow:0 4px 16px rgba(14,165,233,0.4);transition:all 0.3s;" onclick="ouvrirPanier()">
+    🛒 <span id="cart-count">0</span> article(s) — <span id="cart-total">0</span> FCFA
+  </div>
+
+  <!-- Filtres catégories boutique -->
+  <div id="boutique-filtres" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 32px;">
+    <button class="active" data-cat="tous" onclick="filtrerBoutique(this)">Tous</button>
+    <button data-cat="tirage" onclick="filtrerBoutique(this)">📷 Tirages Photo</button>
+    <button data-cat="numerique" onclick="filtrerBoutique(this)">💿 Fichiers Numériques</button>
+    <button data-cat="video" onclick="filtrerBoutique(this)">🎬 Forfaits Vidéo</button>
+  </div>
+
+  <!-- Grille produits -->
+  <div id="produits-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:24px;max-width:1000px;margin:0 auto;text-align:left;"></div>
+
+  <!-- Zone admin boutique -->
+  <div id="boutique-admin" style="display:none;max-width:600px;margin:32px auto 0;background:var(--off-white);border-radius:var(--radius);padding:28px;border:1px solid var(--border);text-align:left;">
+    <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:20px;">➕ Ajouter un produit</h3>
+    <input id="prod-nom" type="text" placeholder="Nom du produit">
+    <textarea id="prod-desc" rows="2" placeholder="Description courte"></textarea>
+    <input id="prod-prix" type="number" placeholder="Prix en FCFA">
+    <select id="prod-cat">
+      <option value="tirage">📷 Tirage Photo</option>
+      <option value="numerique">💿 Fichier Numérique</option>
+      <option value="video">🎬 Forfait Vidéo</option>
+    </select>
+    <input id="prod-img" type="text" placeholder="URL image (optionnel)">
+    <button onclick="ajouterProduit()" style="background:var(--blue);color:white;border:none;padding:12px 28px;border-radius:50px;font-family:var(--font-display);font-weight:600;cursor:pointer;width:100%;margin-top:4px;">✓ Publier le produit</button>
+  </div>
+</section>
+
+<!-- ===== MODAL PANIER ===== -->
+<div id="panier-modal" style="display:none;position:fixed;inset:0;background:rgba(10,22,40,0.85);z-index:99999;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);">
+  <div style="background:white;width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:28px;max-height:85vh;overflow-y:auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--navy);">🛒 Mon Panier</h3>
+      <span onclick="fermerPanier()" style="cursor:pointer;font-size:1.4rem;color:var(--text-muted);background:var(--off-white);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;">✕</span>
+    </div>
+    <div id="panier-items"></div>
+    <div id="panier-empty" style="text-align:center;padding:40px 0;color:var(--text-muted);">
+      <div style="font-size:3rem;margin-bottom:12px;">🛒</div>
+      <p>Votre panier est vide</p>
+    </div>
+    <div id="panier-footer" style="display:none;border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <span style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:var(--navy);">Total</span>
+        <span id="panier-total-display" style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--blue);"></span>
+      </div>
+      <!-- Infos client -->
+      <input id="cmd-nom" type="text" placeholder="Votre nom complet" style="margin-bottom:10px;">
+      <input id="cmd-tel" type="tel" placeholder="Votre numéro WhatsApp / Mobile Money">
+      <select id="cmd-paiement" style="margin-top:10px;">
+        <option value="">-- Mode de paiement --</option>
+        <option value="livraison">💵 Paiement à la livraison</option>
+        <option value="flooz">📱 Flooz (Togocel)</option>
+        <option value="tmoney">📱 T-Money (Moov)</option>
+      </select>
+      <div id="cmd-mobile-info" style="display:none;margin-top:12px;padding:14px;background:var(--blue-glow);border-radius:12px;border:1px solid var(--border);">
+        <p style="font-size:0.85rem;font-weight:600;color:var(--navy);margin-bottom:4px;">Envoyez le paiement à :</p>
+        <p id="cmd-numero-paiement" style="font-size:1rem;font-weight:700;color:var(--blue);"></p>
+        <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Après paiement, envoyez la capture sur WhatsApp</p>
+      </div>
+      <button onclick="passerCommande()" style="background:#25D366;color:white;border:none;padding:14px;border-radius:50px;font-family:var(--font-display);font-weight:700;font-size:1rem;cursor:pointer;width:100%;margin-top:14px;box-shadow:0 4px 20px rgba(37,211,102,0.3);">
+        📩 Confirmer via WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
 
 <section id="contact" style="background:var(--navy);text-align:center;">
   <div class="section-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc;">Contact</div>
@@ -1048,6 +1125,221 @@
     document.getElementById('stat-visiteurs').textContent = snap.val() || 0;
   });
 
+  // ===== BOUTIQUE =====
+  const produitsRef = ref(db, 'site_boutique');
+  const commandesRef = ref(db, 'site_commandes');
+  let panier = [];
+  let tousLesProduits = [];
+
+  // Produits par défaut si la boutique est vide
+  const produitsDefaut = [
+    { id: 'def1', nom: 'Tirage 10x15 cm', desc: 'Impression photo de qualité professionnelle, papier brillant', prix: 500, cat: 'tirage', img: '' },
+    { id: 'def2', nom: 'Tirage 20x30 cm', desc: 'Grand format, idéal pour décoration murale', prix: 2000, cat: 'tirage', img: '' },
+    { id: 'def3', nom: 'Pack 10 tirages 10x15', desc: '10 impressions photo au format carte postale', prix: 4000, cat: 'tirage', img: '' },
+    { id: 'def4', nom: 'Photos HD numériques (10 photos)', desc: 'Fichiers haute résolution livrés par WhatsApp ou email', prix: 5000, cat: 'numerique', img: '' },
+    { id: 'def5', nom: 'Galerie privée en ligne', desc: 'Album photo en ligne sécurisé, accès 6 mois', prix: 8000, cat: 'numerique', img: '' },
+    { id: 'def6', nom: 'Montage vidéo court (2 min)', desc: 'Montage professionnel avec musique et textes', prix: 15000, cat: 'video', img: '' },
+    { id: 'def7', nom: 'Film événement complet', desc: 'Montage vidéo complet de votre événement (5-10 min)', prix: 35000, cat: 'video', img: '' },
+    { id: 'def8', nom: 'Teaser réseaux sociaux', desc: 'Vidéo courte 30-60s optimisée pour Instagram/Facebook', prix: 10000, cat: 'video', img: '' },
+  ];
+
+  const iconesCat = { tirage: '📷', numerique: '💿', video: '🎬' };
+
+  function afficherProduits(produits) {
+    const grid = document.getElementById('produits-grid');
+    grid.innerHTML = '';
+    if (!produits.length) {
+      grid.innerHTML = '<p style="color:var(--text-muted);grid-column:1/-1;text-align:center;padding:40px 0;">Aucun produit dans cette catégorie.</p>';
+      return;
+    }
+    produits.forEach(p => {
+      const div = document.createElement('div');
+      div.style.cssText = 'background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;transition:all 0.3s;display:flex;flex-direction:column;';
+      div.onmouseenter = () => { div.style.transform = 'translateY(-6px)'; div.style.boxShadow = 'var(--shadow-lg)'; };
+      div.onmouseleave = () => { div.style.transform = ''; div.style.boxShadow = 'var(--shadow)'; };
+      div.dataset.cat = p.cat;
+      const imgHTML = p.img
+        ? `<img src="${p.img}" alt="${p.nom}" style="width:100%;height:160px;object-fit:cover;">`
+        : `<div style="width:100%;height:140px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));display:flex;align-items:center;justify-content:center;font-size:3rem;">${iconesCat[p.cat] || '📦'}</div>`;
+      div.innerHTML = `
+        ${imgHTML}
+        <div style="padding:20px;flex:1;display:flex;flex-direction:column;">
+          <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;">${iconesCat[p.cat]} ${p.cat === 'tirage' ? 'Tirage Photo' : p.cat === 'numerique' ? 'Numérique' : 'Vidéo'}</div>
+          <h3 style="font-family:var(--font-display);font-size:1rem;color:var(--navy);margin-bottom:6px;">${p.nom}</h3>
+          <p style="font-size:0.85rem;flex:1;margin-bottom:14px;">${p.desc}</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--blue);">${p.prix.toLocaleString()} FCFA</span>
+            <button onclick="ajouterAuPanier('${p.id}')" style="background:var(--navy);color:white;border:none;padding:8px 18px;border-radius:50px;font-size:0.85rem;font-family:var(--font-display);font-weight:600;cursor:pointer;transition:background 0.2s;" onmouseenter="this.style.background='var(--blue)'" onmouseleave="this.style.background='var(--navy)'">+ Panier</button>
+          </div>
+          ${isAdmin ? `<button onclick="supprimerProduit('${p.id}')" style="margin-top:8px;background:none;border:1px solid #fee2e2;color:#dc2626;border-radius:50px;padding:5px;font-size:0.75rem;cursor:pointer;">🗑 Supprimer</button>` : ''}
+        </div>`;
+      grid.appendChild(div);
+    });
+  }
+
+  onValue(produitsRef, (snap) => {
+    const data = snap.val();
+    if (data) {
+      tousLesProduits = Object.entries(data).map(([id, v]) => ({ id, ...v }));
+    } else {
+      tousLesProduits = produitsDefaut;
+    }
+    afficherProduits(tousLesProduits);
+    document.getElementById('boutique-admin').style.display = isAdmin ? 'block' : 'none';
+  });
+
+  window.filtrerBoutique = (btn) => {
+    document.querySelectorAll('#boutique-filtres button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    const filtres = cat === 'tous' ? tousLesProduits : tousLesProduits.filter(p => p.cat === cat);
+    afficherProduits(filtres);
+  };
+
+  window.ajouterAuPanier = (id) => {
+    const prod = tousLesProduits.find(p => p.id === id);
+    if (!prod) return;
+    const existing = panier.find(i => i.id === id);
+    if (existing) { existing.qte++; } else { panier.push({ ...prod, qte: 1 }); }
+    majPanier();
+    afficherToast(`✅ "${prod.nom}" ajouté au panier !`);
+  };
+
+  function majPanier() {
+    const total = panier.reduce((s, i) => s + i.prix * i.qte, 0);
+    const count = panier.reduce((s, i) => s + i.qte, 0);
+    const badge = document.getElementById('cart-badge');
+    document.getElementById('cart-count').textContent = count;
+    document.getElementById('cart-total').textContent = total.toLocaleString();
+    badge.style.display = count > 0 ? 'block' : 'none';
+    // Mettre à jour modal si ouvert
+    renderPanierModal(total);
+  }
+
+  function renderPanierModal(total) {
+    const items = document.getElementById('panier-items');
+    const empty = document.getElementById('panier-empty');
+    const footer = document.getElementById('panier-footer');
+    const totalDisp = document.getElementById('panier-total-display');
+    if (!panier.length) {
+      items.innerHTML = '';
+      empty.style.display = 'block';
+      footer.style.display = 'none';
+      return;
+    }
+    empty.style.display = 'none';
+    footer.style.display = 'block';
+    const t = total !== undefined ? total : panier.reduce((s, i) => s + i.prix * i.qte, 0);
+    totalDisp.textContent = t.toLocaleString() + ' FCFA';
+    items.innerHTML = panier.map(i => `
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">${iconesCat[i.cat] || '📦'}</div>
+        <div style="flex:1;">
+          <div style="font-family:var(--font-display);font-size:0.9rem;font-weight:600;color:var(--navy);">${i.nom}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">${i.prix.toLocaleString()} FCFA</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="changerQte('${i.id}',-1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">−</button>
+          <span style="font-weight:700;min-width:20px;text-align:center;">${i.qte}</span>
+          <button onclick="changerQte('${i.id}',1)" style="width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:white;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+        <span style="font-family:var(--font-display);font-weight:700;color:var(--blue);min-width:80px;text-align:right;">${(i.prix*i.qte).toLocaleString()} F</span>
+      </div>`).join('');
+  }
+
+  window.changerQte = (id, delta) => {
+    const item = panier.find(i => i.id === id);
+    if (!item) return;
+    item.qte += delta;
+    if (item.qte <= 0) panier = panier.filter(i => i.id !== id);
+    majPanier();
+  };
+
+  window.ouvrirPanier = () => {
+    const modal = document.getElementById('panier-modal');
+    modal.style.display = 'flex';
+    renderPanierModal();
+  };
+
+  window.fermerPanier = () => {
+    document.getElementById('panier-modal').style.display = 'none';
+  };
+
+  // Infos Mobile Money
+  document.getElementById('cmd-paiement').addEventListener('change', function() {
+    const info = document.getElementById('cmd-mobile-info');
+    const num = document.getElementById('cmd-numero-paiement');
+    if (this.value === 'flooz') {
+      info.style.display = 'block';
+      num.textContent = '📱 90 26 06 58 (Flooz - Togocel)';
+    } else if (this.value === 'tmoney') {
+      info.style.display = 'block';
+      num.textContent = '📱 97 21 76 35 (T-Money - Moov)';
+    } else {
+      info.style.display = 'none';
+    }
+  });
+
+  window.passerCommande = () => {
+    const nom = document.getElementById('cmd-nom').value.trim();
+    const tel = document.getElementById('cmd-tel').value.trim();
+    const paiement = document.getElementById('cmd-paiement').value;
+    if (!nom || !tel || !paiement) { afficherToast('⚠️ Veuillez remplir tous les champs'); return; }
+    if (!panier.length) return;
+    const total = panier.reduce((s, i) => s + i.prix * i.qte, 0);
+    const lignes = panier.map(i => `• ${i.nom} x${i.qte} = ${(i.prix*i.qte).toLocaleString()} FCFA`).join('\n');
+    const modePaie = paiement === 'livraison' ? 'Paiement à la livraison' : paiement === 'flooz' ? 'Flooz (Togocel)' : 'T-Money (Moov)';
+    const msg = `🛒 *Commande Christ Media*\n\n👤 Nom : ${nom}\n📞 Tél : ${tel}\n💳 Paiement : ${modePaie}\n\n📦 *Articles :*\n${lignes}\n\n💰 *Total : ${total.toLocaleString()} FCFA*`;
+    // Sauvegarder commande dans Firebase
+    push(commandesRef, { nom, tel, paiement, articles: panier, total, date: new Date().toISOString(), statut: 'nouvelle' });
+    // Ouvrir WhatsApp
+    window.open(`https://wa.me/22890260658?text=${encodeURIComponent(msg)}`, '_blank');
+    panier = [];
+    majPanier();
+    fermerPanier();
+    afficherToast('✅ Commande envoyée sur WhatsApp !');
+  };
+
+  window.ajouterProduit = () => {
+    const nom = document.getElementById('prod-nom').value.trim();
+    const desc = document.getElementById('prod-desc').value.trim();
+    const prix = parseInt(document.getElementById('prod-prix').value);
+    const cat = document.getElementById('prod-cat').value;
+    const img = document.getElementById('prod-img').value.trim();
+    if (!nom || !prix) { afficherToast('⚠️ Nom et prix obligatoires'); return; }
+    push(produitsRef, { nom, desc, prix, cat, img });
+    document.getElementById('prod-nom').value = '';
+    document.getElementById('prod-desc').value = '';
+    document.getElementById('prod-prix').value = '';
+    document.getElementById('prod-img').value = '';
+    afficherToast('✅ Produit ajouté !');
+  };
+
+  window.supprimerProduit = (id) => {
+    if (!confirm('Supprimer ce produit ?')) return;
+    const r = ref(db, `site_boutique/${id}`);
+    import('https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js').then(m => m.remove(r));
+  };
+
+  // Fermer modal panier en cliquant dehors
+  document.getElementById('panier-modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('panier-modal')) fermerPanier();
+  });
+
+  // Style filtres boutique
+  document.querySelectorAll('#boutique-filtres button').forEach(btn => {
+    btn.style.cssText = 'padding:7px 20px;border-radius:30px;border:1.5px solid var(--blue);background:white;color:var(--blue);cursor:pointer;font-size:0.85rem;font-family:var(--font-body);font-weight:500;transition:all 0.2s;';
+    btn.addEventListener('mouseenter', () => { if (!btn.classList.contains('active')) btn.style.background = 'var(--blue-glow)'; });
+    btn.addEventListener('mouseleave', () => { if (!btn.classList.contains('active')) btn.style.background = 'white'; });
+  });
+  const updateBoutiqueFilterStyle = () => {
+    document.querySelectorAll('#boutique-filtres button').forEach(btn => {
+      btn.style.background = btn.classList.contains('active') ? 'var(--blue)' : 'white';
+      btn.style.color = btn.classList.contains('active') ? 'white' : 'var(--blue)';
+    });
+  };
+  document.querySelectorAll('#boutique-filtres button').forEach(btn => btn.addEventListener('click', () => setTimeout(updateBoutiqueFilterStyle, 10)));
+
   // ===== WATERMARK SUR PHOTOS =====
   async function applyWatermark(file) {
     return new Promise((resolve) => {
@@ -1235,8 +1527,10 @@
   function updateAdminZones() {
     const calAdminZone = document.getElementById('cal-admin-zone');
     const aaAdminZone = document.getElementById('aa-admin-zone');
+    const boutiqueAdmin = document.getElementById('boutique-admin');
     if (calAdminZone) calAdminZone.style.display = isAdmin ? 'block' : 'none';
     if (aaAdminZone) aaAdminZone.style.display = isAdmin ? 'block' : 'none';
+    if (boutiqueAdmin) boutiqueAdmin.style.display = isAdmin ? 'block' : 'none';
   }
 
   // Patcher connexion admin pour déclencher updateAdminZones
