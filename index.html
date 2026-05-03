@@ -3,7 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Christ Media - Studio Photo & Vidéo</title>
+
+  <!-- ===== SEO ESSENTIEL ===== -->
+  <title>Christ Media — Photographe & Vidéaste Professionnel à Tsévié, Togo</title>
+  <meta name="description" content="Christ Media : studio photo et vidéo professionnel à Tsévié, Togo. Mariage, anniversaire, portrait, événements d'entreprise. Retouche, tirages et fichiers HD. Contactez-nous sur WhatsApp.">
+  <meta name="keywords" content="photographe Togo, photographe Tsévié, photographe mariage Togo, studio photo Lomé, vidéaste Togo, photo événement Togo, Christ Media, photographe professionnel Togo, mariage Togo, shooting photo Togo">
+  <meta name="author" content="Christ Media">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://tetechristian.github.io/">
+
+  <!-- ===== OPEN GRAPH (partage réseaux sociaux) ===== -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tetechristian.github.io/">
+  <meta property="og:title" content="Christ Media — Photographe & Vidéaste à Tsévié, Togo">
+  <meta property="og:description" content="Studio photo et vidéo professionnel au Togo. Mariages, anniversaires, portraits, événements. Contactez-nous sur WhatsApp !">
+  <meta property="og:image" content="https://tetechristian.github.io/og-image.jpg">
+  <meta property="og:locale" content="fr_TG">
+  <meta property="og:site_name" content="Christ Media">
+
+  <!-- ===== TWITTER CARD ===== -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Christ Media — Photographe & Vidéaste à Tsévié, Togo">
+  <meta name="twitter:description" content="Studio photo et vidéo professionnel au Togo. Mariages, anniversaires, portraits, événements.">
+  <meta name="twitter:image" content="https://tetechristian.github.io/og-image.jpg">
+
+  <!-- ===== DONNÉES STRUCTURÉES JSON-LD (Google Rich Results) ===== -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Christ Media",
+    "description": "Studio photo et vidéo professionnel à Tsévié, Togo. Spécialisé dans les mariages, anniversaires, portraits et événements d'entreprise.",
+    "url": "https://tetechristian.github.io/",
+    "telephone": "+22890260658",
+    "email": "christmedia176@gmail.com",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Tsévié",
+      "addressLocality": "Tsévié",
+      "addressRegion": "Maritime",
+      "addressCountry": "TG"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": "6.4239",
+      "longitude": "1.2128"
+    },
+    "openingHours": "Mo-Su 08:00-20:00",
+    "priceRange": "FCFA 500 - 35000",
+    "image": "https://tetechristian.github.io/og-image.jpg",
+    "sameAs": [
+      "https://wa.me/22890260658"
+    ],
+    "serviceArea": {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": "6.4239",
+        "longitude": "1.2128"
+      },
+      "geoRadius": "100000"
+    },
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Services photo et vidéo",
+      "itemListElement": [
+        { "@type": "Offer", "name": "Photographie de mariage", "description": "Couverture complète de votre mariage au Togo" },
+        { "@type": "Offer", "name": "Portrait et shooting", "description": "Séance photo professionnelle individuelle ou en groupe" },
+        { "@type": "Offer", "name": "Vidéo événementielle", "description": "Montage vidéo professionnel de vos événements" },
+        { "@type": "Offer", "name": "Tirages photo", "description": "Impressions photo qualité professionnelle dès 500 FCFA" }
+      ]
+    }
+  }
+  </script>
+
+  <!-- ===== PWA ===== -->
+  <meta name="theme-color" content="#0a1628">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Christ Media">
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-MJG254KH5L"></script>
   <script>
@@ -1646,6 +1726,50 @@
     }
   }
   loadVideos();
+
+  // ===== SEO — LAZY LOADING IMAGES =====
+  // Observer pour charger les images au scroll
+  if ('IntersectionObserver' in window) {
+    const imgObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          if (img.dataset.src) {
+            img.src = img.dataset.src;
+            img.removeAttribute('data-src');
+          }
+          imgObserver.unobserve(img);
+        }
+      });
+    }, { rootMargin: '200px' });
+    document.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img));
+  }
+
+  // ===== SEO — BREADCRUMB JSON-LD dynamique =====
+  window.addEventListener('scroll', () => {
+    const sections = ['apropos','galerie','boutique','tarifs','devis','avis','contact'];
+    let current = '';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 100) current = id;
+    });
+    if (current) {
+      const existing = document.getElementById('breadcrumb-ld');
+      if (existing) existing.remove();
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'breadcrumb-ld';
+      script.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Accueil", "item": "https://tetechristian.github.io/" },
+          { "@type": "ListItem", "position": 2, "name": current.charAt(0).toUpperCase() + current.slice(1), "item": `https://tetechristian.github.io/#${current}` }
+        ]
+      });
+      document.head.appendChild(script);
+    }
+  }, { passive: true });
 
   // ===== TABLEAU DE BORD ADMIN =====
   let toutesCommandes = [];
