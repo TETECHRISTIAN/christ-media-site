@@ -157,6 +157,7 @@
     <a href="#devis">Devis</a>
     <a href="#avis">Témoignages</a>
     <a href="#contact">Contact</a>
+    <button id="dashboard-btn" onclick="ouvrirDashboard()" style="display:none;background:linear-gradient(135deg,var(--blue),var(--navy-mid));color:white;border:none;padding:6px 16px;border-radius:30px;font-size:0.8rem;font-family:var(--font-display);font-weight:600;cursor:pointer;white-space:nowrap;">📊 Dashboard</button>
   </nav>
 </header>
 
@@ -1528,9 +1529,11 @@
     const calAdminZone = document.getElementById('cal-admin-zone');
     const aaAdminZone = document.getElementById('aa-admin-zone');
     const boutiqueAdmin = document.getElementById('boutique-admin');
+    const dashBtn = document.getElementById('dashboard-btn');
     if (calAdminZone) calAdminZone.style.display = isAdmin ? 'block' : 'none';
     if (aaAdminZone) aaAdminZone.style.display = isAdmin ? 'block' : 'none';
     if (boutiqueAdmin) boutiqueAdmin.style.display = isAdmin ? 'block' : 'none';
+    if (dashBtn) dashBtn.style.display = isAdmin ? 'inline-block' : 'none';
   }
 
   // Patcher connexion admin pour déclencher updateAdminZones
@@ -1643,6 +1646,294 @@
     }
   }
   loadVideos();
+
+  // ===== TABLEAU DE BORD ADMIN =====
+  let toutesCommandes = [];
+  let tousAvis = [];
+  let toutesDispos = {};
+
+  window.ouvrirDashboard = () => {
+    document.getElementById('dashboard-modal').style.display = 'block';
+    chargerDashboard();
+  };
+  window.fermerDashboard = () => {
+    document.getElementById('dashboard-modal').style.display = 'none';
+  };
+
+  function chargerDashboard() {
+    onValue(ref(db, 'site_commandes'), (snap) => {
+      toutesCommandes = snap.val() ? Object.entries(snap.val()).map(([id,v]) => ({id,...v})).reverse() : [];
+      const total = toutesCommandes.reduce((s,c) => s + (c.total||0), 0);
+      document.getElementById('kpi-commandes').textContent = toutesCommandes.length;
+      document.getElementById('kpi-revenus').textContent = total.toLocaleString();
+      afficherCommandes(toutesCommandes);
+    }, { onlyOnce: true });
+
+    onValue(ref(db, 'site_avis'), (snap) => {
+      tousAvis = snap.val() ? Object.entries(snap.val()).map(([id,v]) => ({id,...v})).reverse() : [];
+      document.getElementById('kpi-avis').textContent = tousAvis.length;
+      afficherAvisDash(tousAvis);
+    }, { onlyOnce: true });
+
+    onValue(ref(db, 'site_stats/visiteurs'), (snap) => {
+      document.getElementById('kpi-visiteurs').textContent = snap.val() || 0;
+    }, { onlyOnce: true });
+
+    onValue(ref(db, 'site_galerie'), (snap) => {
+      const data = snap.val() || {};
+      const count = Object.keys(data).length;
+      document.getElementById('kpi-photos').textContent = count;
+      afficherStatsCats(data);
+    }, { onlyOnce: true });
+
+    onValue(ref(db, 'site_calendrier'), (snap) => {
+      toutesDispos = snap.val() || {};
+      const reserves = Object.values(toutesDispos).filter(v => v === 'reserve').length;
+      document.getElementById('kpi-devis').textContent = reserves;
+      afficherDatesReservees(toutesDispos);
+    }, { onlyOnce: true });
+  }
+
+  function afficherCommandes(commandes) {
+    const liste = document.getElementById('commandes-liste');
+    if (!commandes.length) {
+      liste.innerHTML = '<p style="text-align:center;padding:32px;color:var(--text-muted);">Aucune commande pour le moment.</p>';
+      return;
+    }
+    const couleurs = { nouvelle:'#dbeafe', confirmee:'#d1fae5', livree:'#e0e7ff', annulee:'#fee2e2' };
+    liste.innerHTML = commandes.map(c => {
+      const statut = c.statut || 'nouvelle';
+      const articles = (c.articles || []).map(a => `${a.nom} x${a.qte}`).join(', ');
+      const date = c.date ? new Date(c.date).toLocaleDateString('fr-FR') : '—';
+      return `<div style="padding:16px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:12px;align-items:start;">
+        <div style="flex:1;min-width:200px;">
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--navy);margin-bottom:4px;">${c.nom||'—'}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:4px;">📞 ${c.tel||'—'} · 📅 ${date}</div>
+          <div style="font-size:0.82rem;color:var(--text-muted);">🛍 ${articles||'—'}</div>
+          <div style="font-size:0.82rem;margin-top:4px;">💳 ${c.paiement==='livraison'?'À la livraison':c.paiement==='flooz'?'Flooz':c.paiement==='tmoney'?'T-Money':'—'}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-family:var(--font-display);font-weight:800;color:var(--blue);font-size:1.1rem;margin-bottom:8px;">${(c.total||0).toLocaleString()} FCFA</div>
+          <select onchange="changerStatutCommande('${c.id}', this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid var(--border);font-size:0.8rem;background:${couleurs[statut]};width:auto;margin:0 0 8px;">
+            <option value="nouvelle" ${statut==='nouvelle'?'selected':''}>🆕 Nouvelle</option>
+            <option value="confirmee" ${statut==='confirmee'?'selected':''}>✅ Confirmée</option>
+            <option value="livree" ${statut==='livree'?'selected':''}>📦 Livrée</option>
+            <option value="annulee" ${statut==='annulee'?'selected':''}>❌ Annulée</option>
+          </select><br>
+          <a href="https://wa.me/${c.tel}" target="_blank" style="font-size:0.78rem;color:#25D366;font-weight:600;">💬 WhatsApp</a>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.filtrerCommandes = () => {
+    const val = document.getElementById('filtre-statut').value;
+    const filtre = val === 'tous' ? toutesCommandes : toutesCommandes.filter(c => (c.statut||'nouvelle') === val);
+    afficherCommandes(filtre);
+  };
+
+  window.changerStatutCommande = (id, statut) => {
+    set(ref(db, `site_commandes/${id}/statut`), statut);
+    afficherToast('✅ Statut mis à jour');
+  };
+
+  function afficherAvisDash(avis) {
+    const liste = document.getElementById('avis-dash-liste');
+    if (!avis.length) {
+      liste.innerHTML = '<p style="text-align:center;padding:32px;color:var(--text-muted);">Aucun avis pour le moment.</p>';
+      return;
+    }
+    liste.innerHTML = avis.map(a => `
+      <div style="padding:16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;">
+          <div style="font-family:var(--font-display);font-weight:700;color:var(--navy);margin-bottom:4px;">${a.nom||'Anonyme'} <span style="color:#f59e0b;">${'★'.repeat(a.note||5)}${'☆'.repeat(5-(a.note||5))}</span></div>
+          <div style="font-size:0.88rem;color:var(--text-muted);">${a.message||''}</div>
+        </div>
+        <button onclick="supprimerAvis('${a.id}')" style="background:none;border:1px solid #fee2e2;color:#dc2626;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:0.78rem;white-space:nowrap;">🗑 Supprimer</button>
+      </div>`).join('');
+  }
+
+  window.supprimerAvis = async (id) => {
+    if (!confirm('Supprimer cet avis ?')) return;
+    await remove(ref(db, `site_avis/${id}`));
+    afficherToast('🗑 Avis supprimé');
+    tousAvis = tousAvis.filter(a => a.id !== id);
+    afficherAvisDash(tousAvis);
+    document.getElementById('kpi-avis').textContent = tousAvis.length;
+  };
+
+  function afficherDatesReservees(dispos) {
+    const liste = document.getElementById('dates-reservees-liste');
+    const entries = Object.entries(dispos).sort();
+    const today = new Date().toISOString().split('T')[0];
+    const aVenir = entries.filter(([d]) => d >= today);
+    if (!aVenir.length) {
+      liste.innerHTML = '<p style="color:var(--text-muted);">Aucune date réservée à venir.</p>';
+      return;
+    }
+    const colors = { reserve:'#fee2e2', partiel:'#fff8e1', libre:'#d1fae5' };
+    const labels = { reserve:'❌ Réservé', partiel:'⚠️ Partiel', libre:'✅ Libre' };
+    liste.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">` +
+      aVenir.map(([d, statut]) => `
+        <div style="padding:12px 16px;border-radius:10px;background:${colors[statut]||'#f5f5f5'};display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:0.9rem;">${new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})}</div>
+            <div style="font-size:0.78rem;margin-top:2px;">${labels[statut]||statut}</div>
+          </div>
+          <button onclick="libererDate('${d}')" style="background:none;border:1px solid #ccc;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:0.75rem;">Libérer</button>
+        </div>`).join('') + '</div>';
+  }
+
+  window.libererDate = async (date) => {
+    await remove(ref(db, `site_calendrier/${date}`));
+    delete toutesDispos[date];
+    afficherDatesReservees(toutesDispos);
+    afficherToast('✅ Date libérée');
+  };
+
+  function afficherStatsCats(data) {
+    const cats = {};
+    Object.values(data).forEach(p => {
+      const c = p.categorie || 'Sans catégorie';
+      cats[c] = (cats[c] || 0) + 1;
+    });
+    const grid = document.getElementById('dash-cats-grid');
+    if (!Object.keys(cats).length) {
+      grid.innerHTML = '<p style="color:var(--text-muted);">Aucune photo publiée.</p>';
+      return;
+    }
+    const total = Object.values(cats).reduce((s,v) => s+v, 0);
+    grid.innerHTML = Object.entries(cats).sort((a,b) => b[1]-a[1]).map(([cat, count]) => {
+      const pct = Math.round(count/total*100);
+      return `<div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-weight:600;color:var(--navy);">${cat}</span>
+          <span style="font-family:var(--font-display);font-weight:700;color:var(--blue);">${count} photo${count>1?'s':''}</span>
+        </div>
+        <div style="background:var(--off-white);border-radius:30px;height:8px;overflow:hidden;">
+          <div style="background:linear-gradient(90deg,var(--blue),var(--navy-mid));height:100%;border-radius:30px;width:${pct}%;"></div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">${pct}% du total</div>
+      </div>`;
+    }).join('');
+  }
+
+  window.switchTab = (btn) => {
+    document.querySelectorAll('.dash-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.dash-tab-content').forEach(t => t.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
+  };
+
 </script>
+<!-- ===== DASHBOARD ADMIN ===== -->
+<div id="dashboard-modal" style="display:none;position:fixed;inset:0;background:var(--off-white);z-index:99998;overflow-y:auto;">
+
+  <!-- Header dashboard -->
+  <div style="background:var(--navy);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;">📊 Dashboard Admin</span>
+      <span style="font-size:0.75rem;opacity:0.6;">Christ Media</span>
+    </div>
+    <button onclick="fermerDashboard()" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:50%;width:38px;height:38px;cursor:pointer;font-size:1.1rem;">✕</button>
+  </div>
+
+  <div style="max-width:1100px;margin:0 auto;padding:24px 16px;">
+
+    <!-- KPI Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:28px;">
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">📸</div>
+        <div id="kpi-photos" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--blue);">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Photos publiées</div>
+      </div>
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">🛒</div>
+        <div id="kpi-commandes" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#10b981;">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Commandes reçues</div>
+      </div>
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">💰</div>
+        <div id="kpi-revenus" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#f59e0b;">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">FCFA en commandes</div>
+      </div>
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">⭐</div>
+        <div id="kpi-avis" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#8b5cf6;">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Avis clients</div>
+      </div>
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">👁️</div>
+        <div id="kpi-visiteurs" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#0ea5e9;">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Visiteurs uniques</div>
+      </div>
+      <div class="dash-kpi" style="background:white;border-radius:var(--radius);padding:20px;border:1px solid var(--border);box-shadow:var(--shadow);">
+        <div style="font-size:1.8rem;margin-bottom:6px;">📅</div>
+        <div id="kpi-devis" style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:#ec4899;">—</div>
+        <div style="font-size:0.8rem;color:var(--text-muted);">Dates réservées</div>
+      </div>
+    </div>
+
+    <!-- Onglets -->
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+      <button class="dash-tab active" data-tab="commandes" onclick="switchTab(this)">🛒 Commandes</button>
+      <button class="dash-tab" data-tab="avis-dash" onclick="switchTab(this)">⭐ Avis</button>
+      <button class="dash-tab" data-tab="calendrier-dash" onclick="switchTab(this)">📅 Calendrier</button>
+      <button class="dash-tab" data-tab="galerie-dash" onclick="switchTab(this)">📸 Galerie</button>
+    </div>
+
+    <!-- Tab: Commandes -->
+    <div id="tab-commandes" class="dash-tab-content">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin:0;">Commandes reçues</h3>
+          <select id="filtre-statut" onchange="filtrerCommandes()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);font-size:0.85rem;width:auto;margin:0;">
+            <option value="tous">Tous les statuts</option>
+            <option value="nouvelle">🆕 Nouvelles</option>
+            <option value="confirmee">✅ Confirmées</option>
+            <option value="livree">📦 Livrées</option>
+            <option value="annulee">❌ Annulées</option>
+          </select>
+        </div>
+        <div id="commandes-liste" style="padding:8px;"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Avis -->
+    <div id="tab-avis-dash" class="dash-tab-content" style="display:none;">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);">
+          <h3 style="font-family:var(--font-display);color:var(--navy);margin:0;">Gestion des avis clients</h3>
+        </div>
+        <div id="avis-dash-liste" style="padding:8px;"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Calendrier -->
+    <div id="tab-calendrier-dash" class="dash-tab-content" style="display:none;">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;">
+        <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:16px;">Dates réservées</h3>
+        <div id="dates-reservees-liste"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Galerie -->
+    <div id="tab-galerie-dash" class="dash-tab-content" style="display:none;">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;">
+        <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:16px;">Stats par catégorie</h3>
+        <div id="dash-cats-grid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .dash-tab { padding:8px 18px;border-radius:30px;border:1.5px solid var(--border);background:white;color:var(--text-muted);cursor:pointer;font-size:0.85rem;font-family:var(--font-body);font-weight:500;transition:all 0.2s; }
+  .dash-tab.active { background:var(--navy);color:white;border-color:var(--navy); }
+  .dash-kpi { transition:all 0.25s; }
+  .dash-kpi:hover { transform:translateY(-4px);box-shadow:var(--shadow-lg); }
+</style>
+
 </body>
 </html>
