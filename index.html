@@ -13,8 +13,6 @@
     gtag('config', 'G-MJG254KH5L');
   </script>
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-  <script>emailjs.init('VkthB0dwuIoslgPPy');</script>
   <style>
     .grid img { cursor: pointer; transition: transform 0.2s; }
     .grid img:hover { transform: scale(1.03); }
@@ -1118,7 +1116,13 @@
   }, { once: false });
 
   // ===== NOTIFICATION EMAIL ADMIN (EmailJS) =====
-  // EmailJS chargé dans le <head>
+  // Injecter EmailJS
+  const ejsScript = document.createElement('script');
+  ejsScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  ejsScript.onload = () => {
+    emailjs.init('VkthB0dwuIoslgPPy');
+  };
+  document.head.appendChild(ejsScript);
 
   // Patcher envoi devis pour email
   const origDevisBtn = document.getElementById('devis-submit');
@@ -1129,21 +1133,24 @@
     const date = document.getElementById('devis-date').value;
     const pack = document.getElementById('devis-pack').value;
     const message = document.getElementById('devis-message').value.trim();
-    if (!nom || !tel || !type) return;
+    if (!nom || !tel || !type) return; // validation déjà faite par l'autre listener
+    // Envoyer email si EmailJS configuré
     try {
-      await emailjs.send('service_0jwps27', 'template_j7oqmnf', {
-        name: nom,
-        tel: tel,
-        type_evenement: type,
-        date_evenement: date || 'Non précisée',
-        pack: pack || 'Non précisé',
-        message: message || 'Aucun',
-        date_envoi: new Date().toLocaleDateString('fr-FR')
-      });
-      console.log('✅ Email envoyé avec succès !');
-    } catch(e) {
-      console.error('❌ Erreur EmailJS:', e);
-    }
+      if (typeof emailjs !== 'undefined') {
+        await emailjs.send('service_0jwps27', 'template_j7oqmnf', {
+          name: nom,
+          nom: nom,
+          tel: tel,
+          email: 'christmedia176@gmail.com',
+          message: message || 'Aucun',
+          type_evenement: type,
+          date_evenement: date || 'Non précisée',
+          pack: pack || 'Non précisé',
+          date_envoi: new Date().toLocaleDateString('fr-FR')
+        });
+        console.log('✅ Email envoyé !');
+      }
+    } catch(e) { console.error('❌ Erreur EmailJS:', JSON.stringify(e)); }
   });
 
   // ===== CALENDRIER DE DISPONIBILITÉS =====
