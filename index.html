@@ -127,6 +127,21 @@
       transition: transform 0.4s ease;
     }
     #toast.show { transform: translateY(0); }
+
+    /* Mobile scroll fix */
+    html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+    * { -webkit-tap-highlight-color: transparent; }
+    nav { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+    nav::-webkit-scrollbar { display: none; }
+
+    /* Team cards hover */
+    .team-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important; }
+    body.dark .team-card { background: #1e1e1e !important; }
+    body.dark #apropos div[style*="background:#f8f9fa"] { background: #1a1a1a !important; }
+    body.dark #avantapres { background: #1a1a1a !important; }
+    body.dark #calendrier { background: #1a1a1a !important; }
+    body.dark #calendrier > div > div { background: #1e1e1e !important; }
+    body.dark #cal-admin-zone { background: #2a2a2a; }
   </style>
 </head>
 <body>
@@ -134,6 +149,7 @@
 <header>
   <div class="logo">CHRIST MEDIA</div>
   <nav>
+    <a href="#apropos">À propos</a>
     <a href="#galerie">Galerie</a>
     <a href="#videos">Vidéos</a>
     <a href="#tarifs">Tarifs</a>
@@ -203,6 +219,36 @@
       <div id="stat-avis" style="font-size:2.5rem;font-weight:bold;">—</div>
       <div style="font-size:0.9rem;opacity:0.85;">Avis clients</div>
     </div>
+  </div>
+</section>
+
+<!-- ===== SECTION À PROPOS ===== -->
+<section id="apropos" style="padding:60px 20px;max-width:900px;margin:0 auto;">
+  <h2 style="text-align:center;margin-bottom:10px;">À propos de nous</h2>
+  <p style="text-align:center;color:#888;margin-bottom:40px;font-size:1rem;">Une équipe passionnée au service de vos souvenirs</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px;">
+    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0077b6,#023e8a);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">📸</div>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;">Christian</h3>
+      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Fondateur & Photographe</p>
+      <p style="color:#666;font-size:0.85rem;margin:0;">Passionné de photographie événementielle depuis plus de 5 ans à Lomé.</p>
+    </div>
+    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6a0572,#3d0066);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;">Équipe Vidéo</h3>
+      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Montage & Réalisation</p>
+      <p style="color:#666;font-size:0.85rem;margin:0;">Spécialistes du montage vidéo professionnel pour mariages et événements.</p>
+    </div>
+    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#1b4332);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🎨</div>
+      <h3 style="margin:0 0 6px;font-size:1.05rem;">Studio Design</h3>
+      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Retouche & Graphisme</p>
+      <p style="color:#666;font-size:0.85rem;margin:0;">Retouche professionnelle, affiches et supports visuels pour vos événements.</p>
+    </div>
+  </div>
+  <div style="text-align:center;margin-top:40px;padding:24px;background:linear-gradient(135deg,#0077b6,#023e8a);border-radius:16px;color:white;">
+    <p style="font-size:1.1rem;margin:0 0 8px;">📍 Basés à <strong>Tsévié, Togo</strong></p>
+    <p style="margin:0;opacity:0.9;">Nous intervenons dans tout le Togo pour vos événements spéciaux.</p>
   </div>
 </section>
 
@@ -288,10 +334,83 @@
   </div>
 </section>
 
+<section id="avantapres" style="padding:60px 20px;background:#f8f9fa;">
+  <h2 style="text-align:center;margin-bottom:10px;">Avant / Après</h2>
+  <p style="text-align:center;color:#888;margin-bottom:30px;font-size:0.95rem;">Glissez le curseur pour voir la retouche professionnelle</p>
+  <div style="max-width:700px;margin:0 auto;">
+    <div id="slider-compare" style="position:relative;overflow:hidden;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15);user-select:none;touch-action:none;">
+      <!-- Image APRÈS (fond) -->
+      <img id="img-apres" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80" alt="Après retouche" style="display:block;width:100%;height:auto;pointer-events:none;">
+      <!-- Image AVANT (par-dessus, clippée) -->
+      <div id="clip-avant" style="position:absolute;inset:0;overflow:hidden;width:50%;">
+        <img id="img-avant" src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=10&sat=-100" alt="Avant retouche" style="display:block;width:100%;position:absolute;top:0;left:0;pointer-events:none;filter:grayscale(80%) brightness(0.9);">
+      </div>
+      <!-- Ligne séparatrice -->
+      <div id="slider-line" style="position:absolute;top:0;bottom:0;left:50%;width:3px;background:white;cursor:ew-resize;transform:translateX(-50%);z-index:10;">
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.25);font-size:1.1rem;">◀▶</div>
+      </div>
+      <!-- Labels -->
+      <div style="position:absolute;top:14px;left:14px;background:rgba(0,0,0,0.6);color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;z-index:5;">AVANT</div>
+      <div style="position:absolute;top:14px;right:14px;background:#0077b6;color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;z-index:5;">APRÈS</div>
+    </div>
+    <!-- Bouton admin pour changer les images -->
+    <div id="aa-admin-zone" style="display:none;margin-top:16px;padding:16px;background:#fff;border-radius:12px;border:1px solid #ddd;">
+      <p style="margin:0 0 10px;font-weight:600;font-size:0.9rem;">🖼️ Changer les images de comparaison :</p>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <label style="flex:1;"><span style="font-size:0.8rem;color:#666;">Image AVANT</span>
+          <input id="aa-avant-url" type="text" placeholder="URL image avant..." style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;box-sizing:border-box;margin-top:4px;">
+        </label>
+        <label style="flex:1;"><span style="font-size:0.8rem;color:#666;">Image APRÈS</span>
+          <input id="aa-apres-url" type="text" placeholder="URL image après..." style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:0.85rem;box-sizing:border-box;margin-top:4px;">
+        </label>
+      </div>
+      <button id="aa-apply-btn" style="background:#0077b6;color:white;border:none;padding:8px 20px;border-radius:20px;cursor:pointer;font-size:0.9rem;">✓ Appliquer</button>
+    </div>
+  </div>
+</section>
+
 <section id="videos">
   <h2>Nos Vidéos</h2>
   <div id="videos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px;"></div>
   <p id="videos-loading" style="text-align:center;color:#888;font-style:italic;">Chargement des vidéos...</p>
+</section>
+
+<section id="calendrier" style="padding:60px 20px;background:#f8f9fa;">
+  <h2 style="text-align:center;margin-bottom:10px;">📅 Disponibilités</h2>
+  <p style="text-align:center;color:#888;margin-bottom:30px;font-size:0.95rem;">Vérifiez nos disponibilités avant de réserver</p>
+  <div style="max-width:600px;margin:0 auto;">
+    <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+      <!-- En-tête calendrier -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <button id="cal-prev" style="background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:1.1rem;">‹</button>
+        <span id="cal-title" style="font-weight:700;font-size:1.1rem;"></span>
+        <button id="cal-next" style="background:none;border:1px solid #ddd;border-radius:8px;padding:6px 14px;cursor:pointer;font-size:1.1rem;">›</button>
+      </div>
+      <!-- Jours de la semaine -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:8px;">
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Lun</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Mar</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Mer</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Jeu</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Ven</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Sam</div>
+        <div style="font-size:0.75rem;font-weight:600;color:#888;padding:4px;">Dim</div>
+      </div>
+      <!-- Grille jours -->
+      <div id="cal-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;"></div>
+      <!-- Légende -->
+      <div style="display:flex;gap:16px;margin-top:16px;justify-content:center;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;"><div style="width:14px;height:14px;border-radius:4px;background:#e8f5e9;border:1px solid #28a745;"></div> Disponible</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;"><div style="width:14px;height:14px;border-radius:4px;background:#ffebee;border:1px solid #dc3545;"></div> Réservé</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:0.8rem;"><div style="width:14px;height:14px;border-radius:4px;background:#fff8e1;border:1px solid #ffc107;"></div> Partiel</div>
+      </div>
+      <!-- Zone admin calendrier -->
+      <div id="cal-admin-zone" style="display:none;margin-top:16px;border-top:1px solid #eee;padding-top:16px;">
+        <p style="font-size:0.85rem;font-weight:600;margin:0 0 8px;">Cliquez sur un jour pour changer son statut</p>
+        <p id="cal-selected-info" style="font-size:0.85rem;color:#666;margin:0;"></p>
+      </div>
+    </div>
+  </div>
 </section>
 
 <section id="avis">
@@ -493,36 +612,8 @@
     document.getElementById('new-cat-zone').style.display = 'none';
   });
 
-  // ===== UPLOAD =====
-  document.getElementById('upload-btn').addEventListener('click', () => {
-    const cat = document.getElementById('cat-select').value;
-    if (!cat) { alert('Choisissez une catégorie d\'abord !'); return; }
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.multiple = true;
-    input.onchange = async (e) => {
-      const files = Array.from(e.target.files);
-      document.getElementById('galerie-loading').textContent = 'Envoi en cours...';
-      document.getElementById('galerie-loading').style.display = 'block';
-      for (const file of files) {
-        const form = new FormData();
-        form.append('image', file);
-        form.append('key', IMGBB_KEY);
-        try {
-          const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
-          const data = await res.json();
-          if (data.success) {
-            const thumb = data.data.thumb ? data.data.thumb.url : data.data.url;
-            const full = data.data.url;
-            push(galerieRef, { thumb, full, categorie: cat });
-          }
-        } catch(err) { console.error(err); }
-      }
-      document.getElementById('galerie-loading').style.display = 'none';
-    };
-    input.click();
-  });
+  // ===== UPLOAD (géré dans le bloc principal en bas) =====
+  // L'upload avec watermark est défini plus bas dans le même script
 
   // ===== MOT DE PASSE ADMIN =====
   const ADMIN_PWD = 'christmedia2026';
@@ -957,6 +1048,256 @@
   }
   onValue(visitRef, (snap) => {
     document.getElementById('stat-visiteurs').textContent = snap.val() || 0;
+  });
+
+  // ===== WATERMARK SUR PHOTOS =====
+  async function applyWatermark(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          // Watermark texte
+          const fontSize = Math.max(20, Math.floor(img.width / 25));
+          ctx.font = `bold ${fontSize}px Arial`;
+          ctx.fillStyle = 'rgba(255,255,255,0.55)';
+          ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+          ctx.lineWidth = 2;
+          ctx.textAlign = 'right';
+          ctx.textBaseline = 'bottom';
+          const text = '© CHRIST MEDIA';
+          const x = img.width - 16;
+          const y = img.height - 14;
+          ctx.strokeText(text, x, y);
+          ctx.fillText(text, x, y);
+          canvas.toBlob((blob) => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', 0.92);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Patcher le bouton upload pour appliquer watermark
+  document.getElementById('upload-btn').addEventListener('click', () => {
+    const cat = document.getElementById('cat-select').value;
+    if (!cat) { alert('Choisissez une catégorie d\'abord !'); return; }
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+    input.onchange = async (e) => {
+      const files = Array.from(e.target.files);
+      document.getElementById('galerie-loading').textContent = 'Envoi en cours (watermark ajouté)...';
+      document.getElementById('galerie-loading').style.display = 'block';
+      for (const file of files) {
+        const wFile = await applyWatermark(file);
+        const form = new FormData();
+        form.append('image', wFile);
+        form.append('key', IMGBB_KEY);
+        try {
+          const res = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form });
+          const data = await res.json();
+          if (data.success) {
+            const thumb = data.data.thumb ? data.data.thumb.url : data.data.url;
+            const full = data.data.url;
+            push(galerieRef, { thumb, full, categorie: cat });
+          }
+        } catch(err) { console.error(err); }
+      }
+      document.getElementById('galerie-loading').style.display = 'none';
+    };
+    input.click();
+  }, { once: false });
+
+  // ===== NOTIFICATION EMAIL ADMIN (EmailJS) =====
+  // Injecter EmailJS
+  const ejsScript = document.createElement('script');
+  ejsScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  ejsScript.onload = () => {
+    emailjs.init('YOUR_EMAILJS_PUBLIC_KEY'); // Remplace par ta clé EmailJS
+  };
+  document.head.appendChild(ejsScript);
+
+  // Patcher envoi devis pour email
+  const origDevisBtn = document.getElementById('devis-submit');
+  origDevisBtn.addEventListener('click', async () => {
+    const nom = document.getElementById('devis-nom').value.trim();
+    const tel = document.getElementById('devis-tel').value.trim();
+    const type = document.getElementById('devis-type').value;
+    const date = document.getElementById('devis-date').value;
+    const pack = document.getElementById('devis-pack').value;
+    const message = document.getElementById('devis-message').value.trim();
+    if (!nom || !tel || !type) return; // validation déjà faite par l'autre listener
+    // Envoyer email si EmailJS configuré
+    try {
+      if (typeof emailjs !== 'undefined') {
+        await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
+          nom, tel, type_evenement: type, date_evenement: date || 'Non précisée',
+          pack: pack || 'Non précisé', message: message || 'Aucun',
+          date_envoi: new Date().toLocaleDateString('fr-FR')
+        });
+      }
+    } catch(e) { console.log('Email non envoyé:', e); }
+  });
+
+  // ===== CALENDRIER DE DISPONIBILITÉS =====
+  const calDispoRef = ref(db, 'site_calendrier');
+  let calDispos = {}; // 'YYYY-MM-DD': 'libre'|'reserve'|'partiel'
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  const moisFR = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+
+  onValue(calDispoRef, (snap) => {
+    calDispos = snap.val() || {};
+    renderCal();
+  });
+
+  function renderCal() {
+    const grid = document.getElementById('cal-grid');
+    const title = document.getElementById('cal-title');
+    if (!grid) return;
+    grid.innerHTML = '';
+    title.textContent = `${moisFR[calMonth]} ${calYear}`;
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const today = new Date().toISOString().split('T')[0];
+
+    // Vides de début
+    for (let i = 0; i < startOffset; i++) {
+      const empty = document.createElement('div');
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const statut = calDispos[dateStr] || 'libre';
+      const isPast = dateStr < today;
+
+      const cell = document.createElement('div');
+      let bg = '#e8f5e9'; let border = '#28a745'; let color = '#1b5e20';
+      if (statut === 'reserve') { bg = '#ffebee'; border = '#dc3545'; color = '#b71c1c'; }
+      if (statut === 'partiel') { bg = '#fff8e1'; border = '#ffc107'; color = '#7b5800'; }
+      if (isPast) { bg = '#f5f5f5'; border = '#ccc'; color = '#bbb'; }
+
+      cell.style.cssText = `padding:6px 2px;text-align:center;border-radius:8px;font-size:0.85rem;font-weight:600;cursor:${isPast ? 'default' : 'pointer'};background:${bg};border:2px solid ${border};color:${color};transition:transform 0.1s;`;
+      cell.textContent = d;
+
+      if (!isPast) {
+        cell.addEventListener('click', async () => {
+          if (isAdmin) {
+            // Cycle: libre -> reserve -> partiel -> libre
+            const next = { libre: 'reserve', reserve: 'partiel', partiel: 'libre' };
+            await set(ref(db, `site_calendrier/${dateStr}`), next[statut]);
+            document.getElementById('cal-selected-info').textContent = `${dateStr} → ${next[statut]}`;
+          } else {
+            // Visiteur: pré-remplir le devis avec cette date
+            const devisDate = document.getElementById('devis-date');
+            if (devisDate && statut === 'libre') {
+              devisDate.value = dateStr;
+              document.getElementById('devis').scrollIntoView({ behavior: 'smooth' });
+              afficherToast('📅 Date sélectionnée ! Complétez votre devis.');
+            } else if (statut === 'reserve') {
+              afficherToast('❌ Cette date est déjà réservée.');
+            } else if (statut === 'partiel') {
+              afficherToast('⚠️ Date partiellement disponible — contactez-nous.');
+            }
+          }
+        });
+        cell.addEventListener('mouseenter', () => cell.style.transform = 'scale(1.1)');
+        cell.addEventListener('mouseleave', () => cell.style.transform = '');
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  document.getElementById('cal-prev').addEventListener('click', () => {
+    calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; }
+    renderCal();
+  });
+  document.getElementById('cal-next').addEventListener('click', () => {
+    calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCal();
+  });
+
+  // Afficher zone admin calendrier si connecté
+  function updateAdminZones() {
+    const calAdminZone = document.getElementById('cal-admin-zone');
+    const aaAdminZone = document.getElementById('aa-admin-zone');
+    if (calAdminZone) calAdminZone.style.display = isAdmin ? 'block' : 'none';
+    if (aaAdminZone) aaAdminZone.style.display = isAdmin ? 'block' : 'none';
+  }
+
+  // Patcher connexion admin pour déclencher updateAdminZones
+  const origPwdSubmit = document.getElementById('pwd-submit');
+  origPwdSubmit.addEventListener('click', () => {
+    setTimeout(updateAdminZones, 100);
+  });
+
+  // ===== AVANT/APRÈS SLIDER =====
+  const sliderCompare = document.getElementById('slider-compare');
+  const clipAvant = document.getElementById('clip-avant');
+  const sliderLine = document.getElementById('slider-line');
+  const imgAvant = document.getElementById('img-avant');
+  let isDragging = false;
+
+  function setSliderPos(pct) {
+    const p = Math.max(0, Math.min(100, pct));
+    clipAvant.style.width = p + '%';
+    sliderLine.style.left = p + '%';
+    // Synchroniser largeur image avant
+    imgAvant.style.width = sliderCompare.offsetWidth + 'px';
+  }
+
+  function getSliderPct(clientX) {
+    const rect = sliderCompare.getBoundingClientRect();
+    return ((clientX - rect.left) / rect.width) * 100;
+  }
+
+  sliderLine.addEventListener('mousedown', () => isDragging = true);
+  document.addEventListener('mousemove', (e) => { if (isDragging) setSliderPos(getSliderPct(e.clientX)); });
+  document.addEventListener('mouseup', () => isDragging = false);
+
+  // Touch support (Android)
+  sliderLine.addEventListener('touchstart', (e) => { isDragging = true; e.preventDefault(); }, { passive: false });
+  document.addEventListener('touchmove', (e) => {
+    if (isDragging) { setSliderPos(getSliderPct(e.touches[0].clientX)); e.preventDefault(); }
+  }, { passive: false });
+  document.addEventListener('touchend', () => isDragging = false);
+
+  // Init et resize
+  window.addEventListener('resize', () => { setSliderPos(50); });
+  setTimeout(() => setSliderPos(50), 200);
+
+  // Admin avant/après - changer images
+  const aaApplyBtn = document.getElementById('aa-apply-btn');
+  if (aaApplyBtn) {
+    aaApplyBtn.addEventListener('click', () => {
+      const avantUrl = document.getElementById('aa-avant-url').value.trim();
+      const apresUrl = document.getElementById('aa-apres-url').value.trim();
+      if (avantUrl) { imgAvant.src = avantUrl; imgAvant.style.filter = 'none'; }
+      if (apresUrl) document.getElementById('img-apres').src = apresUrl;
+      setTimeout(() => setSliderPos(50), 300);
+      if (db) {
+        set(ref(db, 'site_avantapres'), { avant: avantUrl || imgAvant.src, apres: apresUrl || document.getElementById('img-apres').src });
+      }
+    });
+  }
+
+  // Charger images avant/après depuis Firebase
+  onValue(ref(db, 'site_avantapres'), (snap) => {
+    const d = snap.val();
+    if (d) {
+      if (d.avant) { imgAvant.src = d.avant; imgAvant.style.filter = 'none'; }
+      if (d.apres) document.getElementById('img-apres').src = d.apres;
+      setTimeout(() => setSliderPos(50), 400);
+    }
   });
 
 </script>
