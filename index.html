@@ -1120,7 +1120,7 @@
   const ejsScript = document.createElement('script');
   ejsScript.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
   ejsScript.onload = () => {
-    emailjs.init('YOUR_EMAILJS_PUBLIC_KEY'); // Remplace par ta clé EmailJS
+    emailjs.init('VkthB0dwuIoslgPPy');
   };
   document.head.appendChild(ejsScript);
 
@@ -1137,8 +1137,8 @@
     // Envoyer email si EmailJS configuré
     try {
       if (typeof emailjs !== 'undefined') {
-        await emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
-          nom, tel, type_evenement: type, date_evenement: date || 'Non précisée',
+        await emailjs.send('service_0jwps27', 'template_j7oqmnf', {
+          name: nom, tel, type_evenement: type, date_evenement: date || 'Non précisée',
           pack: pack || 'Non précisé', message: message || 'Aucun',
           date_envoi: new Date().toLocaleDateString('fr-FR')
         });
