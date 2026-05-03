@@ -12,136 +12,136 @@
     gtag('js', new Date());
     gtag('config', 'G-MJG254KH5L');
   </script>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
-    .grid img { cursor: pointer; transition: transform 0.2s; }
-    .grid img:hover { transform: scale(1.03); }
-    #galerie-loading { text-align: center; color: #888; margin: 20px 0; font-style: italic; }
-
-    #lightbox {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.88);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
+    :root {
+      --navy: #0a1628; --navy-mid: #112240; --blue: #0ea5e9; --blue-dark: #0077b6;
+      --blue-glow: rgba(14,165,233,0.12); --white: #ffffff; --off-white: #f8fafc;
+      --text: #1e293b; --text-muted: #64748b; --border: rgba(14,165,233,0.15);
+      --radius: 16px; --shadow: 0 4px 24px rgba(10,22,40,0.08);
+      --shadow-lg: 0 12px 48px rgba(10,22,40,0.14);
+      --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
     }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+    body { font-family: var(--font-body); background: var(--white); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+    h1,h2,h3,h4 { font-family: var(--font-display); font-weight: 700; line-height: 1.15; }
+    h2 { font-size: clamp(1.6rem,4vw,2.2rem); margin-bottom: 12px; color: var(--navy); }
+    p { color: var(--text-muted); }
+    a { text-decoration: none; }
+    section { padding: 90px 5vw 60px; }
+    .section-tag { display: inline-block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); background: var(--blue-glow); padding: 4px 14px; border-radius: 30px; margin-bottom: 12px; }
+
+    /* HEADER */
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 0 5vw; height: 64px; background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); box-shadow: 0 2px 20px rgba(10,22,40,0.06); }
+    .logo { font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.08em; background: linear-gradient(135deg, var(--navy), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    nav { display: flex; align-items: center; gap: 2px; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+    nav::-webkit-scrollbar { display: none; }
+    nav a { font-size: 0.82rem; font-weight: 500; color: var(--text-muted); padding: 6px 12px; border-radius: 30px; transition: all 0.2s; }
+    nav a:hover { color: var(--blue); background: var(--blue-glow); }
+
+    /* HERO */
+    .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding-top: 64px; }
+    #hero-slides { position: absolute; inset: 0; z-index: 0; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
+    .hero-slide.active { opacity: 1; }
+    #hero-content { position: relative; z-index: 2; text-align: center; padding: 20px; max-width: 760px; }
+    #hero-title { font-size: clamp(2rem,6vw,3.8rem); color: white; margin-bottom: 18px; animation: fadeInUp 0.8s ease both; }
+    #hero-sub { font-size: clamp(0.95rem,2.5vw,1.15rem); color: rgba(255,255,255,0.75); margin-bottom: 36px; animation: fadeInUp 1s ease both; }
+    .btn { display: inline-block; font-family: var(--font-display); font-size: 0.95rem; font-weight: 600; padding: 14px 36px; border-radius: 50px; background: var(--blue); color: white; box-shadow: 0 4px 24px rgba(14,165,233,0.45); transition: all 0.25s; animation: fadeInUp 1.2s ease both; }
+    .btn:hover { background: #38bdf8; transform: translateY(-2px); box-shadow: 0 8px 32px rgba(14,165,233,0.55); }
+    #hero-dots { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; z-index: 2; }
+
+    /* STATS */
+    #stats { background: linear-gradient(135deg, var(--navy), var(--navy-mid)); color: white; padding: 60px 5vw; text-align: center; }
+    #stats h2 { color: white; }
+    #stats > div { display: flex; justify-content: center; gap: clamp(24px,6vw,80px); flex-wrap: wrap; margin-top: 28px; }
+    #stats > div > div { text-align: center; }
+    #stats > div > div > div:first-child { font-family: var(--font-display); font-size: clamp(2rem,5vw,3rem); font-weight: 800; color: var(--blue); }
+    #stats > div > div > div:last-child { font-size: 0.85rem; opacity: 0.7; margin-top: 4px; }
+
+    /* CARDS TARIFS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
+    .card { background: white; border-radius: var(--radius); padding: 32px 24px; border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s; text-align: center; }
+    .card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: rgba(14,165,233,0.35); }
+    .card h3 { font-family: var(--font-display); font-size: 1.1rem; color: var(--navy); margin-bottom: 8px; }
+    .card p { font-size: 0.9rem; margin-bottom: 16px; }
+    .card strong { font-family: var(--font-display); font-size: 1.4rem; color: var(--blue); font-weight: 700; }
+
+    /* GALERIE */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 10px; }
+    .grid img { cursor: pointer; width: 100%; display: block; border-radius: 10px; transition: transform 0.25s, box-shadow 0.25s; }
+    .grid img:hover { transform: scale(1.03); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    #galerie-loading { text-align: center; color: var(--text-muted); margin: 20px 0; font-style: italic; }
+    #filtres { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+
+    /* LIGHTBOX */
+    #lightbox { display: none; position: fixed; inset: 0; background: rgba(10,22,40,0.95); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
     #lightbox.active { display: flex; }
-    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 8px; }
-    #lightbox-prev, #lightbox-next {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 2.5rem;
-      color: white;
-      cursor: pointer;
-      padding: 10px 20px;
-      user-select: none;
-      background: rgba(0,0,0,0.3);
-      border-radius: 50%;
-    }
-    #lightbox-prev { left: 20px; }
-    #lightbox-next { right: 20px; }
-    #lightbox-close {
-      position: absolute;
-      top: 18px; right: 26px;
-      font-size: 2.2rem;
-      color: white;
-      cursor: pointer;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      width: 44px; height: 44px;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10000;
-    }
+    #lightbox img { max-width: 92vw; max-height: 92vh; border-radius: 12px; box-shadow: 0 0 80px rgba(14,165,233,0.2); }
+    #lightbox-prev, #lightbox-next { position: absolute; top: 50%; transform: translateY(-50%); font-size: 1.4rem; color: white; cursor: pointer; padding: 14px 18px; user-select: none; background: rgba(14,165,233,0.2); border-radius: 50%; border: 1px solid rgba(14,165,233,0.3); transition: background 0.2s; }
+    #lightbox-prev:hover, #lightbox-next:hover { background: rgba(14,165,233,0.4); }
+    #lightbox-prev { left: 20px; } #lightbox-next { right: 20px; }
+    #lightbox-close { position: absolute; top: 18px; right: 26px; font-size: 1.3rem; color: white; cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; z-index: 10000; border: 1px solid rgba(255,255,255,0.2); transition: background 0.2s; }
 
-    #admin-toggle {
-      display: block;
-      margin: 10px auto 0;
-      background: none;
-      border: 1px solid #ccc;
-      color: #aaa;
-      font-size: 0.75rem;
-      padding: 4px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-    #admin-toggle:hover { color: #555; border-color: #999; }
-    #upload-zone { display: none; text-align: center; margin: 16px auto; }
-    #upload-btn {
-      background: #0077b6;
-      color: white;
-      border: none;
-      padding: 10px 28px;
-      border-radius: 25px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    #upload-btn:hover { background: #005f99; }
+    /* ADMIN */
+    #admin-toggle { display: block; margin: 12px auto 0; background: none; border: 1.5px solid var(--border); color: var(--text-muted); font-size: 0.78rem; padding: 5px 16px; border-radius: 30px; cursor: pointer; transition: all 0.2s; }
+    #admin-toggle:hover { color: var(--blue); border-color: var(--blue); }
+    #upload-zone { display: none; max-width: 520px; margin: 16px auto; padding: 24px; background: var(--off-white); border-radius: var(--radius); border: 1px solid var(--border); }
+    #upload-btn { background: var(--blue); color: white; border: none; padding: 12px 28px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; width: 100%; font-family: var(--font-display); font-weight: 600; transition: background 0.2s; }
+    #upload-btn:hover { background: #38bdf8; }
+    #manage-btn { background: #64748b; color: white; border: none; padding: 12px 28px; border-radius: 50px; font-size: 0.95rem; cursor: pointer; width: 100%; margin-top: 10px; font-family: var(--font-display); font-weight: 600; }
 
-    /* Mode sombre */
-    body.dark { background:#121212; color:#e0e0e0; }
-    body.dark header { background:#1e1e1e; }
-    body.dark .card { background:#1e1e1e; color:#e0e0e0; }
-    body.dark section { background:#121212; }
-    body.dark #avis-form { background:#1e1e1e; }
-    body.dark input, body.dark textarea, body.dark select { background:#2a2a2a; color:#e0e0e0; border-color:#444; }
-    body.dark #avis-liste > div { background:#1e1e1e; }
-    body.dark footer { background:#1e1e1e; color:#aaa; }
-    body.dark #stats { background:#1a3a5c; }
-    body.dark nav a { color:#ccc; }
-    body.dark .upload-zone-inner { background:#1e1e1e; }
+    /* FORMS */
+    input, textarea, select { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-family: var(--font-body); font-size: 0.95rem; color: var(--text); background: white; transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 12px; }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); }
+    textarea { resize: none; }
+    #avis-form { max-width: 520px; margin: 0 auto 30px; padding: 28px; background: var(--off-white); border-radius: var(--radius); border: 1px solid var(--border); }
+    #avis-liste > div { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); border: 1px solid var(--border); }
 
-    #dark-toggle {
-      position: fixed;
-      bottom: 80px;
-      right: 18px;
-      background: #333;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 44px;
-      height: 44px;
-      font-size: 1.3rem;
-      cursor: pointer;
-      z-index: 9998;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-    body.dark #dark-toggle { background: #f5c518; color: #111; }
+    /* TEAM */
+    .team-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); transition: all 0.3s; }
+    .team-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); border-color: rgba(14,165,233,0.3); }
 
-    /* Toast notification */
-    #toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #0077b6;
-      color: white;
-      padding: 14px 20px;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      z-index: 99999;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-      transform: translateY(-80px);
-      transition: transform 0.4s ease;
-    }
+    /* FOOTER / CONTACT */
+    footer { background: var(--navy); color: rgba(255,255,255,0.45); text-align: center; padding: 32px 5vw; font-size: 0.85rem; }
+    .whatsapp { position: fixed; bottom: 20px; right: 18px; background: #25D366; color: white; border-radius: 50%; width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; z-index: 9997; box-shadow: 0 4px 20px rgba(37,211,102,0.4); transition: transform 0.2s; }
+    .whatsapp:hover { transform: scale(1.1); }
+    #dark-toggle { position: fixed; bottom: 82px; right: 18px; background: var(--navy); color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 1.1rem; cursor: pointer; z-index: 9998; box-shadow: var(--shadow); }
+
+    /* TOAST */
+    #toast { position: fixed; top: 20px; right: 20px; background: var(--navy); color: white; padding: 14px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 500; z-index: 99999; box-shadow: var(--shadow-lg); border-left: 3px solid var(--blue); transform: translateY(-80px); transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
     #toast.show { transform: translateY(0); }
 
-    /* Mobile scroll fix */
-    html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-    * { -webkit-tap-highlight-color: transparent; }
-    nav { overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
-    nav::-webkit-scrollbar { display: none; }
+    /* ANIMATIONS */
+    @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+    #galerie-grid .grid-item { opacity:0; transform:translateY(20px); transition:opacity 0.5s ease, transform 0.5s ease; }
+    #galerie-grid .grid-item.visible { opacity:1; transform:translateY(0); }
 
-    /* Team cards hover */
-    .team-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important; }
-    body.dark .team-card { background: #1e1e1e !important; }
-    body.dark #apropos div[style*="background:#f8f9fa"] { background: #1a1a1a !important; }
-    body.dark #avantapres { background: #1a1a1a !important; }
-    body.dark #calendrier { background: #1a1a1a !important; }
-    body.dark #calendrier > div > div { background: #1e1e1e !important; }
-    body.dark #cal-admin-zone { background: #2a2a2a; }
+    /* DARK MODE */
+    body.dark { background:#0d1117; color:#c9d1d9; }
+    body.dark header { background:rgba(13,17,23,0.95); border-color:rgba(255,255,255,0.06); }
+    body.dark .logo { background:linear-gradient(135deg,#60a5fa,var(--blue)); -webkit-background-clip:text; background-clip:text; }
+    body.dark nav a { color:#8b949e; }
+    body.dark h2 { color:#e6edf3; }
+    body.dark .card, body.dark #avis-form, body.dark .team-card, body.dark #upload-zone { background:#161b22; border-color:rgba(255,255,255,0.08); }
+    body.dark #avis-liste > div { background:#161b22; border-color:rgba(255,255,255,0.08); }
+    body.dark input, body.dark textarea, body.dark select { background:#161b22; color:#c9d1d9; border-color:rgba(255,255,255,0.1); }
+    body.dark section { background:#0d1117; }
+    body.dark .section-alt, body.dark #avantapres, body.dark #calendrier { background:#0d1117 !important; }
+    body.dark #stats { background:linear-gradient(135deg,#010409,#0d1117); }
+    body.dark footer { background:#010409; }
+    body.dark #dark-toggle { background:#f5c518; color:#111; }
+    body.dark #calendrier > div > div { background:#161b22 !important; }
+    body.dark #cal-admin-zone { background:#1c2128; }
+
+    @media (max-width:640px) {
+      header { padding: 0 4vw; } .logo { font-size:1rem; }
+      nav a { font-size:0.76rem; padding:5px 9px; }
+      section { padding:80px 4vw 48px; }
+      .cards { grid-template-columns:1fr; }
+    }
   </style>
 </head>
 <body>
@@ -159,101 +159,81 @@
   </nav>
 </header>
 
-<section class="hero" style="position:relative;overflow:hidden;min-height:100vh;display:flex;align-items:center;justify-content:center;">
-  <!-- Slides arrière-plan -->
+<section class="hero" style="padding-top:64px;">
   <div id="hero-slides" style="position:absolute;inset:0;z-index:0;">
-    <div class="hero-slide active" style="background:linear-gradient(135deg,#0077b6,#023e8a);"></div>
-    <div class="hero-slide" style="background:linear-gradient(135deg,#1a1a2e,#16213e);"></div>
-    <div class="hero-slide" style="background:linear-gradient(135deg,#2d6a4f,#1b4332);"></div>
-    <div class="hero-slide" style="background:linear-gradient(135deg,#6a0572,#3d0066);"></div>
+    <div class="hero-slide active" style="background:linear-gradient(135deg,#0a1628,#0d3460);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#0d1b2a,#1a3a5c);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#0a1628,#0e4d6e);"></div>
+    <div class="hero-slide" style="background:linear-gradient(135deg,#0d1117,#0a2540);"></div>
   </div>
-
-  <!-- Contenu -->
+  <div style="position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(14,165,233,0.15) 0%,transparent 70%);"></div>
+  <div style="position:absolute;inset:0;z-index:1;background-image:radial-gradient(circle,rgba(255,255,255,0.03) 1px,transparent 1px);background-size:40px 40px;"></div>
   <div style="position:relative;z-index:2;text-align:center;padding:20px;" id="hero-content">
-    <h1 id="hero-title" style="font-size:clamp(2rem,6vw,4rem);margin-bottom:16px;animation:fadeInUp 0.8s ease;">Capturez vos moments précieux</h1>
-    <p id="hero-sub" style="font-size:clamp(1rem,3vw,1.4rem);margin-bottom:30px;opacity:0.9;animation:fadeInUp 1s ease;">Photo • Vidéo • Mariage • Événements</p>
-    <a class="btn" href="https://wa.me/22890260658" target="_blank" style="animation:fadeInUp 1.2s ease;">Réserver sur WhatsApp</a>
+    <div class="section-tag" style="background:rgba(14,165,233,0.2);color:#7dd3fc;margin-bottom:20px;">Studio Photo & Vidéo • Tsévié, Togo</div>
+    <h1 id="hero-title" style="font-size:clamp(2rem,6vw,4rem);color:white;margin-bottom:18px;animation:fadeInUp 0.8s ease;">Capturez vos moments précieux</h1>
+    <p id="hero-sub" style="font-size:clamp(0.95rem,2.5vw,1.2rem);color:rgba(255,255,255,0.72);margin-bottom:36px;animation:fadeInUp 1s ease;">Photo • Vidéo • Mariage • Événements</p>
+    <a class="btn" href="https://wa.me/22890260658" target="_blank">Réserver sur WhatsApp</a>
   </div>
-
-  <!-- Indicateurs -->
-  <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2;" id="hero-dots"></div>
+  <div id="hero-dots" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2;"></div>
 </section>
 
-<style>
-  .hero-slide {
-    position:absolute;inset:0;
-    opacity:0;
-    transition:opacity 1.2s ease;
-  }
-  .hero-slide.active { opacity:1; }
-
-  @keyframes fadeInUp {
-    from { opacity:0; transform:translateY(30px); }
-    to { opacity:1; transform:translateY(0); }
-  }
-
-  /* Animations galerie */
-  #galerie-grid .grid-item {
-    opacity:0;
-    transform:translateY(20px);
-    transition:opacity 0.5s ease, transform 0.5s ease;
-  }
-  #galerie-grid .grid-item.visible {
-    opacity:1;
-    transform:translateY(0);
-  }
-</style>
-
-<section id="stats" style="background:#0077b6;color:white;padding:30px 20px;text-align:center;">
-  <h2 style="color:white;margin-bottom:20px;">Nos chiffres</h2>
-  <div style="display:flex;justify-content:center;gap:40px;flex-wrap:wrap;">
+<section id="stats" style="background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:white;padding:60px 5vw;text-align:center;">
+  <div class="section-tag" style="background:rgba(14,165,233,0.2);color:#7dd3fc;">Nos chiffres</div>
+  <h2 style="color:white;margin-bottom:8px;">En quelques mots</h2>
+  <div style="display:flex;justify-content:center;gap:clamp(24px,6vw,80px);flex-wrap:wrap;margin-top:30px;">
     <div>
-      <div id="stat-visiteurs" style="font-size:2.5rem;font-weight:bold;">—</div>
-      <div style="font-size:0.9rem;opacity:0.85;">Visiteurs</div>
+      <div id="stat-visiteurs" style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--blue);">—</div>
+      <div style="font-size:0.85rem;opacity:0.7;margin-top:4px;">Visiteurs</div>
     </div>
     <div>
-      <div id="stat-photos" style="font-size:2.5rem;font-weight:bold;">—</div>
-      <div style="font-size:0.9rem;opacity:0.85;">Photos</div>
+      <div id="stat-photos" style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--blue);">—</div>
+      <div style="font-size:0.85rem;opacity:0.7;margin-top:4px;">Photos</div>
     </div>
     <div>
-      <div id="stat-avis" style="font-size:2.5rem;font-weight:bold;">—</div>
-      <div style="font-size:0.9rem;opacity:0.85;">Avis clients</div>
+      <div id="stat-avis" style="font-family:var(--font-display);font-size:clamp(2rem,5vw,3rem);font-weight:800;color:var(--blue);">—</div>
+      <div style="font-size:0.85rem;opacity:0.7;margin-top:4px;">Avis clients</div>
     </div>
   </div>
 </section>
 
 <!-- ===== SECTION À PROPOS ===== -->
-<section id="apropos" style="padding:60px 20px;max-width:900px;margin:0 auto;">
-  <h2 style="text-align:center;margin-bottom:10px;">À propos de nous</h2>
-  <p style="text-align:center;color:#888;margin-bottom:40px;font-size:1rem;">Une équipe passionnée au service de vos souvenirs</p>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px;">
-    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
-      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#0077b6,#023e8a);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">📸</div>
-      <h3 style="margin:0 0 6px;font-size:1.05rem;">Christian</h3>
-      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Fondateur & Photographe</p>
-      <p style="color:#666;font-size:0.85rem;margin:0;">Passionné de photographie événementielle depuis plus de 5 ans à Lomé.</p>
+<section id="apropos" style="background:var(--off-white);text-align:center;">
+  <div class="section-tag">Notre équipe</div>
+  <h2>À propos de nous</h2>
+  <p style="margin-bottom:40px;">Une équipe passionnée au service de vos souvenirs</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:24px;max-width:800px;margin:0 auto 40px;">
+    <div class="team-card" style="text-align:center;padding:32px 24px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--navy-mid));margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 4px 20px rgba(14,165,233,0.3);">📸</div>
+      <h3 style="font-size:1.05rem;color:var(--navy);margin-bottom:6px;">Christian</h3>
+      <p style="color:var(--blue);font-size:0.82rem;font-weight:600;margin-bottom:8px;">Fondateur & Photographe</p>
+      <p style="font-size:0.85rem;">Passionné de photographie événementielle depuis plus de 5 ans à Lomé.</p>
     </div>
-    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
-      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6a0572,#3d0066);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🎬</div>
-      <h3 style="margin:0 0 6px;font-size:1.05rem;">Équipe Vidéo</h3>
-      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Montage & Réalisation</p>
-      <p style="color:#666;font-size:0.85rem;margin:0;">Spécialistes du montage vidéo professionnel pour mariages et événements.</p>
+    <div class="team-card" style="text-align:center;padding:32px 24px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#4f46e5);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 4px 20px rgba(99,102,241,0.3);">🎬</div>
+      <h3 style="font-size:1.05rem;color:var(--navy);margin-bottom:6px;">Équipe Vidéo</h3>
+      <p style="color:var(--blue);font-size:0.82rem;font-weight:600;margin-bottom:8px;">Montage & Réalisation</p>
+      <p style="font-size:0.85rem;">Spécialistes du montage vidéo professionnel pour mariages et événements.</p>
     </div>
-    <div class="team-card" style="text-align:center;padding:24px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,0.08);transition:transform 0.2s;">
-      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#2d6a4f,#1b4332);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:2rem;">🎨</div>
-      <h3 style="margin:0 0 6px;font-size:1.05rem;">Studio Design</h3>
-      <p style="color:#0077b6;font-size:0.85rem;margin:0 0 8px;font-weight:600;">Retouche & Graphisme</p>
-      <p style="color:#666;font-size:0.85rem;margin:0;">Retouche professionnelle, affiches et supports visuels pour vos événements.</p>
+    <div class="team-card" style="text-align:center;padding:32px 24px;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 4px 20px rgba(16,185,129,0.3);">🎨</div>
+      <h3 style="font-size:1.05rem;color:var(--navy);margin-bottom:6px;">Studio Design</h3>
+      <p style="color:var(--blue);font-size:0.82rem;font-weight:600;margin-bottom:8px;">Retouche & Graphisme</p>
+      <p style="font-size:0.85rem;">Retouche professionnelle, affiches et supports visuels pour vos événements.</p>
     </div>
   </div>
-  <div style="text-align:center;margin-top:40px;padding:24px;background:linear-gradient(135deg,#0077b6,#023e8a);border-radius:16px;color:white;">
-    <p style="font-size:1.1rem;margin:0 0 8px;">📍 Basés à <strong>Tsévié, Togo</strong></p>
-    <p style="margin:0;opacity:0.9;">Nous intervenons dans tout le Togo pour vos événements spéciaux.</p>
+  <div style="display:inline-flex;align-items:center;gap:12px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:50px;padding:16px 32px;color:white;">
+    <span style="font-size:1.2rem;">📍</span>
+    <div style="text-align:left;">
+      <div style="font-weight:700;font-family:var(--font-display);">Basés à Tsévié, Togo</div>
+      <div style="font-size:0.82rem;opacity:0.7;">Interventions dans tout le Togo</div>
+    </div>
   </div>
 </section>
 
-<section id="galerie">
-  <h2>Galerie</h2>
+<section id="galerie" style="text-align:center;">
+  <div class="section-tag">Portfolio</div>
+  <h2>Notre Galerie</h2>
+  <p style="margin-bottom:24px;">Découvrez nos meilleures réalisations</p>
 
   <!-- Bouton admin -->
   <button id="admin-toggle">🔐 Admin</button>
@@ -307,36 +287,43 @@
   <div class="grid" id="galerie-grid"></div>
 </section>
 
-<section id="stats-cats" style="padding:30px 20px;max-width:800px;margin:0 auto;">
-  <h2 style="text-align:center;">📊 Statistiques par catégorie</h2>
-  <p style="text-align:center;color:#888;font-size:0.9rem;">Visible uniquement par l'admin</p>
-  <div id="stats-cats-grid" style="display:none;"></div>
+<section id="stats-cats" style="padding:40px 5vw;max-width:860px;margin:0 auto;text-align:center;">
+  <h2>📊 Statistiques par catégorie</h2>
+  <p style="font-size:0.9rem;">Visible uniquement par l'admin</p>
+  <div id="stats-cats-grid" style="display:none;margin-top:20px;"></div>
 </section>
 
-<section id="tarifs">
-  <h2>Nos Tarifs</h2>
+<section id="tarifs" style="background:var(--off-white);text-align:center;">
+  <div class="section-tag">Nos Tarifs</div>
+  <h2>Des formules adaptées à vos besoins</h2>
+  <p style="margin-bottom:40px;">Choisissez le pack qui vous convient le mieux</p>
   <div class="cards">
     <div class="card">
+      <div style="font-size:2rem;margin-bottom:12px;">📷</div>
       <h3>Pack Basic</h3>
       <p>Photos événements simples</p>
       <strong>10 000 FCFA</strong>
     </div>
-    <div class="card">
+    <div class="card" style="border-color:var(--blue);box-shadow:0 8px 32px rgba(14,165,233,0.2);position:relative;">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:0.72rem;font-weight:700;padding:4px 14px;border-radius:30px;letter-spacing:0.08em;">POPULAIRE</div>
+      <div style="font-size:2rem;margin-bottom:12px;">🎨</div>
       <h3>Pack Pro</h3>
       <p>Photo + retouche + livraison</p>
       <strong>25 000 FCFA</strong>
     </div>
     <div class="card">
+      <div style="font-size:2rem;margin-bottom:12px;">🎬</div>
       <h3>Pack Premium</h3>
       <p>Photo + vidéo + montage</p>
-      <strong>Sur devis</strong>
+      <strong style="color:var(--navy);">Sur devis</strong>
     </div>
   </div>
 </section>
 
-<section id="avantapres" style="padding:60px 20px;background:#f8f9fa;">
-  <h2 style="text-align:center;margin-bottom:10px;">Avant / Après</h2>
-  <p style="text-align:center;color:#888;margin-bottom:30px;font-size:0.95rem;">Glissez le curseur pour voir la retouche professionnelle</p>
+<section id="avantapres" style="background:var(--off-white);text-align:center;">
+  <div class="section-tag">Retouche</div>
+  <h2>Avant / Après</h2>
+  <p style="margin-bottom:30px;">Glissez le curseur pour voir la retouche professionnelle</p>
   <div style="max-width:700px;margin:0 auto;">
     <div id="slider-compare" style="position:relative;overflow:hidden;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.15);user-select:none;touch-action:none;">
       <!-- Image APRÈS (fond) -->
@@ -369,15 +356,18 @@
   </div>
 </section>
 
-<section id="videos">
+<section id="videos" style="text-align:center;">
+  <div class="section-tag">Réalisations</div>
   <h2>Nos Vidéos</h2>
-  <div id="videos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px;"></div>
-  <p id="videos-loading" style="text-align:center;color:#888;font-style:italic;">Chargement des vidéos...</p>
+  <p style="margin-bottom:24px;">Nos meilleures productions vidéo</p>
+  <div id="videos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;padding:16px;text-align:left;"></div>
+  <p id="videos-loading" style="text-align:center;color:var(--text-muted);font-style:italic;">Chargement des vidéos...</p>
 </section>
 
-<section id="calendrier" style="padding:60px 20px;background:#f8f9fa;">
-  <h2 style="text-align:center;margin-bottom:10px;">📅 Disponibilités</h2>
-  <p style="text-align:center;color:#888;margin-bottom:30px;font-size:0.95rem;">Vérifiez nos disponibilités avant de réserver</p>
+<section id="calendrier" style="background:var(--off-white);text-align:center;">
+  <div class="section-tag">Agenda</div>
+  <h2>📅 Disponibilités</h2>
+  <p style="margin-bottom:30px;">Vérifiez nos disponibilités avant de réserver</p>
   <div style="max-width:600px;margin:0 auto;">
     <div style="background:white;border-radius:16px;padding:24px;box-shadow:0 4px 16px rgba(0,0,0,0.08);">
       <!-- En-tête calendrier -->
@@ -413,15 +403,17 @@
   </div>
 </section>
 
-<section id="avis">
-  <h2>Témoignages</h2>
+<section id="avis" style="text-align:center;">
+  <div class="section-tag">Témoignages</div>
+  <h2>Ce que disent nos clients</h2>
+  <p style="margin-bottom:32px;">Des milliers de moments capturés, des centaines de clients satisfaits</p>
   
-  <div id="avis-form" style="max-width:500px;margin:0 auto 30px;padding:20px;background:#f9f9f9;border-radius:12px;">
-    <h3 style="margin-top:0;font-size:1.1rem;">Laissez votre avis</h3>
-    <input id="avis-nom" type="text" placeholder="Votre nom" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:1rem;">
-    <textarea id="avis-message" placeholder="Votre témoignage..." rows="3" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;box-sizing:border-box;font-size:1rem;resize:none;"></textarea>
-    <div style="margin-bottom:12px;">
-      <span style="font-size:0.9rem;color:#555;">Note : </span>
+  <div id="avis-form">
+    <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--navy);margin-bottom:20px;">Laissez votre avis</h3>
+    <input id="avis-nom" type="text" placeholder="Votre nom">
+    <textarea id="avis-message" placeholder="Votre témoignage..." rows="3"></textarea>
+    <div style="margin-bottom:16px;text-align:left;">
+      <span style="font-size:0.9rem;color:var(--text-muted);">Note : </span>
       <span id="stars-input" style="font-size:1.8rem;cursor:pointer;">
         <span data-val="1">☆</span>
         <span data-val="2">☆</span>
@@ -430,22 +422,23 @@
         <span data-val="5">☆</span>
       </span>
     </div>
-    <button id="avis-submit" style="background:#0077b6;color:white;border:none;padding:10px 28px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;">Envoyer mon avis</button>
-    <p id="avis-msg" style="text-align:center;color:green;display:none;margin-top:8px;">Merci pour votre témoignage !</p>
+    <button id="avis-submit" class="btn-submit btn-primary">Envoyer mon avis</button>
+    <p id="avis-msg" style="text-align:center;color:#10b981;display:none;margin-top:10px;font-weight:500;">✓ Merci pour votre témoignage !</p>
   </div>
 
-  <div id="avis-liste" style="max-width:700px;margin:0 auto;"></div>
+  <div id="avis-liste" style="max-width:700px;margin:0 auto;text-align:left;"></div>
 </section>
 
-<section id="devis">
+<section id="devis" style="background:var(--off-white);text-align:center;">
+  <div class="section-tag">Réservation</div>
   <h2>Demande de devis</h2>
-  <div style="max-width:550px;margin:0 auto;padding:24px;background:#f9f9f9;border-radius:16px;">
+  <p style="margin-bottom:32px;">Remplissez ce formulaire et nous vous répondons rapidement</p>
+  <div style="max-width:550px;margin:0 auto;background:white;padding:32px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--border);text-align:left;">
+    <input id="devis-nom" type="text" placeholder="Votre nom complet">
     
-    <input id="devis-nom" type="text" placeholder="Votre nom complet" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;">
-    
-    <input id="devis-tel" type="tel" placeholder="Votre numéro WhatsApp" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;">
+    <input id="devis-tel" type="tel" placeholder="Votre numéro WhatsApp">
 
-    <select id="devis-type" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;">
+    <select id="devis-type">
       <option value="">-- Type d'événement --</option>
       <option>Mariage</option>
       <option>Anniversaire</option>
@@ -455,9 +448,9 @@
       <option>Autre</option>
     </select>
 
-    <input id="devis-date" type="date" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;">
+    <input id="devis-date" type="date">
 
-    <select id="devis-pack" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;">
+    <select id="devis-pack">
       <option value="">-- Pack souhaité --</option>
       <option>Pack Basic — 10 000 FCFA</option>
       <option>Pack Pro — 25 000 FCFA</option>
@@ -465,23 +458,28 @@
       <option>Je ne sais pas encore</option>
     </select>
 
-    <textarea id="devis-message" placeholder="Détails supplémentaires (lieu, nombre de personnes, etc.)" rows="3" style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ddd;border-radius:8px;font-size:1rem;box-sizing:border-box;resize:none;"></textarea>
+    <textarea id="devis-message" placeholder="Détails supplémentaires (lieu, nombre de personnes, etc.)" rows="3"></textarea>
 
-    <button id="devis-submit" style="background:#25D366;color:white;border:none;padding:12px;border-radius:25px;font-size:1rem;cursor:pointer;width:100%;font-weight:bold;">
-      📩 Envoyer la demande
-    </button>
-    <p id="devis-msg" style="text-align:center;color:green;display:none;margin-top:10px;">✅ Demande envoyée ! Nous vous contacterons bientôt.</p>
+    <button id="devis-submit" class="btn-submit btn-whatsapp">📩 Envoyer la demande</button>
+    <p id="devis-msg" style="text-align:center;color:#10b981;display:none;margin-top:10px;font-weight:500;">✅ Demande envoyée ! Nous vous contacterons bientôt.</p>
   </div>
 </section>
 
-<section id="contact">
-  <h2>Contact</h2>
-  <p>WhatsApp : 90260658 / 97217635</p>
-  <p>Email : christmedia176@gmail.com</p>
+<section id="contact" style="background:var(--navy);text-align:center;">
+  <div class="section-tag" style="background:rgba(14,165,233,0.15);color:#7dd3fc;">Contact</div>
+  <h2 style="color:white;margin-bottom:8px;">Parlons de votre projet</h2>
+  <p style="color:rgba(255,255,255,0.55);margin-bottom:36px;">Nous sommes disponibles pour répondre à toutes vos questions</p>
+  <div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;">
+    <a href="https://wa.me/22890260658" target="_blank" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 24px;color:white;font-size:0.95rem;transition:all 0.2s;">💬 90 26 06 58</a>
+    <a href="https://wa.me/22897217635" target="_blank" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 24px;color:white;font-size:0.95rem;transition:all 0.2s;">💬 97 21 76 35</a>
+    <a href="mailto:christmedia176@gmail.com" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 24px;color:white;font-size:0.95rem;transition:all 0.2s;">✉️ christmedia176@gmail.com</a>
+    <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:14px 24px;color:white;font-size:0.95rem;">📍 Tsévié, Togo</div>
+  </div>
 </section>
 
 <footer>
-  <p>© 2026 CHRIST MEDIA - Tsévié, Togo</p>
+  <div style="font-family:var(--font-display);font-size:1.1rem;font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:8px;">CHRIST MEDIA</div>
+  <p style="color:rgba(255,255,255,0.3);font-size:0.8rem;">© 2026 Christ Media · Tsévié, Togo · Studio Photo & Vidéo</p>
 </footer>
 
 <div id="toast"></div>
