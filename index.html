@@ -1721,32 +1721,84 @@
 
   async function loadVideos() {
     const loading = document.getElementById('videos-loading');
+    const grid = document.getElementById('videos-grid');
     try {
-      // Chercher l'ID de la chaîne via handle
-      const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=christmedia9754&key=${YT_API_KEY}`);
+      const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=id,snippet,statistics&forHandle=christmedia9754&key=${YT_API_KEY}`);
       const searchData = await searchRes.json();
-      if (!searchData.items || searchData.items.length === 0) throw new Error('Chaîne introuvable');
-      const channelId = searchData.items[0].id;
+      if (!searchData.items || !searchData.items.length) throw new Error('Chaîne introuvable');
+      const channel = searchData.items[0];
+      const channelId = channel.id;
+      const channelName = channel.snippet.title;
+      const subsCount = parseInt(channel.statistics.subscriberCount || 0).toLocaleString();
 
-      // Charger les dernières vidéos
-      const vidRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=6&order=date&type=video&key=${YT_API_KEY}`);
+      // Banner chaîne
+      const banner = document.createElement('div');
+      banner.style.cssText = 'max-width:860px;margin:0 auto 32px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));border-radius:var(--radius);padding:20px 24px;display:flex;align-items:center;gap:16px;border:1px solid rgba(14,165,233,0.2);';
+      banner.innerHTML = `
+        <div style="width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,#ff0000,#cc0000);display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0;">▶</div>
+        <div style="flex:1;text-align:left;">
+          <div style="font-family:var(--font-display);font-weight:700;color:white;font-size:1rem;">${channelName}</div>
+          <div style="font-size:0.8rem;color:rgba(255,255,255,0.5);margin-top:2px;">${subsCount} abonnés</div>
+        </div>
+        <a href="https://www.youtube.com/@christmedia9754" target="_blank" style="background:#ff0000;color:white;padding:8px 18px;border-radius:30px;font-family:var(--font-display);font-size:0.82rem;font-weight:700;white-space:nowrap;transition:background 0.2s;" onmouseenter="this.style.background='#cc0000'" onmouseleave="this.style.background='#ff0000'">S'abonner</a>
+      `;
+      grid.parentNode.insertBefore(banner, grid);
+
+      // Vidéos
+      const vidRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=8&order=date&type=video&key=${YT_API_KEY}`);
       const vidData = await vidRes.json();
-      
       loading.style.display = 'none';
-      const grid = document.getElementById('videos-grid');
-      
-      vidData.items.forEach(item => {
+
+      // Récupérer stats vidéos (vues, durée)
+      const videoIds = vidData.items.map(i => i.id.videoId).join(',');
+      let statsMap = {};
+      try {
+        const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=statistics,contentDetails&id=${videoIds}&key=${YT_API_KEY}`);
+        const statsData = await statsRes.json();
+        statsData.items.forEach(v => { statsMap[v.id] = v; });
+      } catch(e) {}
+
+      vidData.items.forEach((item, idx) => {
         const videoId = item.id.videoId;
         const title = item.snippet.title;
+        const thumb = item.snippet.thumbnails.high?.url || item.snippet.thumbnails.medium?.url;
+        const publishedAt = new Date(item.snippet.publishedAt).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' });
+        const desc = item.snippet.description?.slice(0, 80) || '';
+        const stats = statsMap[videoId];
+        const views = stats ? parseInt(stats.statistics.viewCount || 0).toLocaleString() : '';
+
+        // Durée ISO
+        let duree = '';
+        if (stats?.contentDetails?.duration) {
+          const d = stats.contentDetails.duration;
+          const m = d.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+          if (m) {
+            const h = m[1] ? m[1] + ':' : '';
+            const min = (m[2] || '0').padStart(h ? 2 : 1, '0');
+            const sec = (m[3] || '0').padStart(2, '0');
+            duree = `${h}${min}:${sec}`;
+          }
+        }
+
         const div = document.createElement('div');
-        div.style.cssText = 'border-radius:10px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+        div.style.cssText = 'background:white;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border);transition:all 0.3s;cursor:pointer;';
+        div.onmouseenter = () => { div.style.transform = 'translateY(-6px)'; div.style.boxShadow = 'var(--shadow-lg)'; };
+        div.onmouseleave = () => { div.style.transform = ''; div.style.boxShadow = 'var(--shadow)'; };
         div.innerHTML = `
-          <iframe width="100%" height="200" 
-            src="https://www.youtube.com/embed/${videoId}" 
-            frameborder="0" allowfullscreen
-            style="display:block;">
-          </iframe>
-          <p style="padding:8px;margin:0;font-size:0.85rem;font-weight:600;">${title}</p>
+          <div style="position:relative;aspect-ratio:16/9;background:#000;overflow:hidden;" onclick="ouvrirVideo('${videoId}', this)">
+            <img src="${thumb}" alt="${title}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform=''">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.25);transition:background 0.2s;" onmouseenter="this.style.background='rgba(0,0,0,0.4)'" onmouseleave="this.style.background='rgba(0,0,0,0.25)'">
+              <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,0,0,0.9);display:flex;align-items:center;justify-content:center;font-size:1.4rem;box-shadow:0 4px 16px rgba(0,0,0,0.4);">▶</div>
+            </div>
+            ${duree ? `<div style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,0.8);color:white;font-size:0.72rem;padding:2px 8px;border-radius:4px;font-family:var(--font-display);font-weight:600;">${duree}</div>` : ''}
+          </div>
+          <div style="padding:14px 16px;">
+            <h3 style="font-family:var(--font-display);font-size:0.92rem;color:var(--navy);margin-bottom:6px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${title}</h3>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+              <span style="font-size:0.75rem;color:var(--text-muted);">📅 ${publishedAt}</span>
+              ${views ? `<span style="font-size:0.75rem;color:var(--text-muted);">👁 ${views} vues</span>` : ''}
+            </div>
+          </div>
         `;
         grid.appendChild(div);
       });
@@ -1755,7 +1807,74 @@
       console.error(e);
     }
   }
+
+  // Lecteur vidéo inline
+  window.ouvrirVideo = (videoId, container) => {
+    const wrapper = container.parentNode.querySelector('.video-wrapper') || container;
+    container.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allowfullscreen allow="autoplay" style="position:absolute;inset:0;width:100%;height:100%;"></iframe>`;
+    container.style.position = 'relative';
+  };
+
   loadVideos();
+
+  // ===== NOTIFICATIONS PUSH =====
+  // Demander permission après 5 secondes sur la page
+  setTimeout(async () => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      // Afficher une invite personnalisée avant de demander la permission native
+      const notifBanner = document.createElement('div');
+      notifBanner.id = 'notif-banner';
+      notifBanner.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:16px 20px;border-radius:16px;box-shadow:0 8px 32px rgba(10,22,40,0.3);z-index:9995;display:flex;align-items:center;gap:14px;max-width:420px;width:calc(100% - 40px);border:1px solid rgba(14,165,233,0.3);animation:fadeInUp 0.5s ease both;';
+      notifBanner.innerHTML = `
+        <div style="font-size:1.8rem;flex-shrink:0;">🔔</div>
+        <div style="flex:1;">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:0.95rem;margin-bottom:3px;">Restez informé !</div>
+          <div style="font-size:0.8rem;opacity:0.7;line-height:1.4;">Recevez nos offres spéciales et nouveautés en temps réel.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+          <button id="notif-accept" style="background:var(--blue);color:white;border:none;padding:7px 14px;border-radius:20px;font-size:0.8rem;font-family:var(--font-display);font-weight:600;cursor:pointer;white-space:nowrap;">Activer</button>
+          <button id="notif-refuse" style="background:none;color:rgba(255,255,255,0.4);border:none;padding:4px;font-size:0.75rem;cursor:pointer;">Non merci</button>
+        </div>
+      `;
+      document.body.appendChild(notifBanner);
+
+      document.getElementById('notif-accept').onclick = async () => {
+        notifBanner.remove();
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          afficherToast('🔔 Notifications activées !');
+          // Envoyer notification de bienvenue
+          setTimeout(() => {
+            new Notification('Bienvenue sur Christ Media ! 📸', {
+              body: 'Merci de nous faire confiance. Nous vous informerons de nos offres spéciales.',
+              icon: 'https://tetechristian.github.io/christ-media-site/img1.jpg',
+              badge: 'https://tetechristian.github.io/christ-media-site/img1.jpg',
+              tag: 'bienvenue'
+            });
+          }, 1000);
+          // Sauvegarder dans Firebase que cet utilisateur a accepté
+          const notifRef = ref(db, 'site_stats/notifications_acceptees');
+          runTransaction(notifRef, (current) => (current || 0) + 1);
+        }
+      };
+      document.getElementById('notif-refuse').onclick = () => notifBanner.remove();
+    }
+  }, 5000);
+
+  // Fonction pour envoyer une notification (utilisée par l'admin via dashboard)
+  window.envoyerNotification = (titre, message) => {
+    if (Notification.permission === 'granted') {
+      new Notification(titre, {
+        body: message,
+        icon: 'https://tetechristian.github.io/christ-media-site/img1.jpg',
+        tag: 'christ-media-' + Date.now()
+      });
+    }
+  };
+
+  // Notification automatique quand un nouvel avis est ajouté (pour admin)
+  // (déjà géré dans le listener avis)
 
   // ===== SPLASH SCREEN =====
   const splash = document.getElementById('splash');
@@ -2139,6 +2258,37 @@
     document.querySelectorAll('.dash-tab-content').forEach(t => t.style.display = 'none');
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
+    // Charger compteur notifications si onglet ouvert
+    if (btn.dataset.tab === 'notifs') {
+      onValue(ref(db, 'site_stats/notifications_acceptees'), (snap) => {
+        const el = document.getElementById('notif-count');
+        if (el) el.textContent = (snap.val() || 0) + ' visiteur(s)';
+      }, { onlyOnce: true });
+    }
+  };
+
+  window.envoyerNotifAdmin = () => {
+    const titre = document.getElementById('notif-titre').value.trim();
+    const msg = document.getElementById('notif-msg').value.trim();
+    if (!titre || !msg) { afficherToast('⚠️ Titre et message obligatoires'); return; }
+    if (Notification.permission === 'granted') {
+      new Notification(titre, {
+        body: msg,
+        icon: 'https://tetechristian.github.io/christ-media-site/img1.jpg',
+        tag: 'admin-' + Date.now()
+      });
+      afficherToast('✅ Notification envoyée !');
+      document.getElementById('notif-titre').value = '';
+      document.getElementById('notif-msg').value = '';
+    } else {
+      afficherToast('⚠️ Les notifications ne sont pas activées sur cet appareil');
+    }
+  };
+
+  window.notifRapide = (titre, msg) => {
+    document.getElementById('notif-titre').value = titre;
+    document.getElementById('notif-msg').value = msg;
+    envoyerNotifAdmin();
   };
 
 </script>
@@ -2196,6 +2346,7 @@
       <button class="dash-tab" data-tab="avis-dash" onclick="switchTab(this)">⭐ Avis</button>
       <button class="dash-tab" data-tab="calendrier-dash" onclick="switchTab(this)">📅 Calendrier</button>
       <button class="dash-tab" data-tab="galerie-dash" onclick="switchTab(this)">📸 Galerie</button>
+      <button class="dash-tab" data-tab="notifs" onclick="switchTab(this)">🔔 Notifications</button>
     </div>
 
     <!-- Tab: Commandes -->
@@ -2235,9 +2386,32 @@
 
     <!-- Tab: Galerie -->
     <div id="tab-galerie-dash" class="dash-tab-content" style="display:none;">
-      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;margin-bottom:16px;">
         <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:16px;">Stats par catégorie</h3>
         <div id="dash-cats-grid"></div>
+      </div>
+    </div>
+
+    <!-- Tab: Notifications -->
+    <div id="tab-notifs" class="dash-tab-content" style="display:none;">
+      <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:24px;">
+        <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:6px;">🔔 Envoyer une notification</h3>
+        <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:20px;">Envoyez une notification à tous les visiteurs qui ont accepté les alertes</p>
+        <input id="notif-titre" type="text" placeholder="Titre de la notification" style="margin-bottom:10px;">
+        <textarea id="notif-msg" rows="3" placeholder="Message de la notification..."></textarea>
+        <button onclick="envoyerNotifAdmin()" style="background:var(--blue);color:white;border:none;padding:12px 28px;border-radius:50px;font-family:var(--font-display);font-weight:600;cursor:pointer;width:100%;margin-top:8px;">🔔 Envoyer la notification</button>
+        <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
+          <h4 style="font-family:var(--font-display);color:var(--navy);margin-bottom:12px;font-size:0.95rem;">Notifications rapides :</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button onclick="notifRapide('🎉 Offre spéciale !','Profitez de -20% sur tous nos packs ce weekend !')" style="background:var(--off-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:0.8rem;">🎉 Offre spéciale</button>
+            <button onclick="notifRapide('📸 Nouvelles photos !','De nouvelles photos viennent d\'être ajoutées à notre galerie.')" style="background:var(--off-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:0.8rem;">📸 Nouvelles photos</button>
+            <button onclick="notifRapide('📅 Places disponibles !','Des créneaux viennent de se libérer pour ce mois. Réservez vite !')" style="background:var(--off-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:0.8rem;">📅 Places libres</button>
+            <button onclick="notifRapide('🎬 Nouvelle vidéo !','Découvrez notre dernière réalisation sur YouTube !')" style="background:var(--off-white);border:1px solid var(--border);border-radius:20px;padding:7px 14px;cursor:pointer;font-size:0.8rem;">🎬 Nouvelle vidéo</button>
+          </div>
+        </div>
+        <div style="margin-top:20px;padding:16px;background:var(--off-white);border-radius:12px;">
+          <div style="font-size:0.85rem;color:var(--text-muted);">📊 Visiteurs ayant accepté les notifications : <strong id="notif-count" style="color:var(--blue);">—</strong></div>
+        </div>
       </div>
     </div>
 
