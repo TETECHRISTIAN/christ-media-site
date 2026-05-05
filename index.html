@@ -226,6 +226,36 @@
 </head>
 <body>
 
+<!-- ===== SPLASH SCREEN ===== -->
+<div id="splash" style="position:fixed;inset:0;z-index:999999;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 0.8s ease, transform 0.8s ease;">
+  <!-- Cercles décoratifs -->
+  <div style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,0.15),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:splashPulse 2s ease-in-out infinite;"></div>
+  <div style="position:absolute;width:200px;height:200px;border-radius:50%;border:1px solid rgba(14,165,233,0.2);top:50%;left:50%;transform:translate(-50%,-50%);animation:splashRing 2s ease-in-out infinite 0.3s;"></div>
+  <div style="position:absolute;width:320px;height:320px;border-radius:50%;border:1px solid rgba(14,165,233,0.1);top:50%;left:50%;transform:translate(-50%,-50%);animation:splashRing 2s ease-in-out infinite 0.6s;"></div>
+
+  <!-- Logo animé -->
+  <div style="position:relative;z-index:2;text-align:center;">
+    <div id="splash-icon" style="width:90px;height:90px;border-radius:24px;background:linear-gradient(135deg,var(--blue),var(--navy-mid));display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:2.5rem;box-shadow:0 8px 32px rgba(14,165,233,0.4);animation:splashBounce 0.8s ease both;">
+      📸
+    </div>
+    <div id="splash-title" style="font-family:var(--font-display);font-size:2.2rem;font-weight:800;color:white;letter-spacing:0.08em;animation:splashFadeUp 0.8s ease 0.2s both;">CHRIST MEDIA</div>
+    <div id="splash-sub" style="font-size:0.85rem;color:rgba(255,255,255,0.5);letter-spacing:0.2em;text-transform:uppercase;margin-top:6px;animation:splashFadeUp 0.8s ease 0.4s both;">Studio Photo & Vidéo · Togo</div>
+
+    <!-- Barre de progression -->
+    <div style="width:160px;height:3px;background:rgba(255,255,255,0.1);border-radius:10px;margin:36px auto 0;overflow:hidden;animation:splashFadeUp 0.8s ease 0.6s both;">
+      <div id="splash-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--blue),#38bdf8);border-radius:10px;transition:width 0.1s linear;"></div>
+    </div>
+    <div id="splash-pct" style="font-size:0.75rem;color:rgba(255,255,255,0.3);margin-top:8px;font-family:var(--font-display);animation:splashFadeUp 0.8s ease 0.7s both;">0%</div>
+  </div>
+</div>
+
+<style>
+  @keyframes splashPulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.6} 50%{transform:translate(-50%,-50%) scale(1.1);opacity:1} }
+  @keyframes splashRing { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.3} 50%{transform:translate(-50%,-50%) scale(1.05);opacity:0.6} }
+  @keyframes splashBounce { 0%{opacity:0;transform:scale(0.5)} 60%{transform:scale(1.1)} 100%{opacity:1;transform:scale(1)} }
+  @keyframes splashFadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+</style>
+
 <header>
   <div class="logo">CHRIST MEDIA</div>
   <nav>
@@ -1727,7 +1757,169 @@
   }
   loadVideos();
 
-  // ===== SEO — LAZY LOADING IMAGES =====
+  // ===== SPLASH SCREEN =====
+  const splash = document.getElementById('splash');
+  const bar = document.getElementById('splash-bar');
+  const pct = document.getElementById('splash-pct');
+  let progress = 0;
+  const splashInterval = setInterval(() => {
+    progress += Math.random() * 18 + 4;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(splashInterval);
+      bar.style.width = '100%';
+      pct.textContent = '100%';
+      setTimeout(() => {
+        splash.style.opacity = '0';
+        splash.style.transform = 'scale(1.05)';
+        setTimeout(() => splash.style.display = 'none', 800);
+      }, 300);
+    }
+    bar.style.width = Math.min(progress, 100) + '%';
+    pct.textContent = Math.floor(Math.min(progress, 100)) + '%';
+  }, 120);
+
+  // ===== AMÉLIORATIONS MOBILE =====
+
+  // 1. Menu hamburger mobile
+  const header = document.querySelector('header');
+  const nav = document.querySelector('nav');
+  const hamburger = document.createElement('button');
+  hamburger.id = 'hamburger';
+  hamburger.innerHTML = '☰';
+  hamburger.style.cssText = 'display:none;background:none;border:none;font-size:1.5rem;color:var(--navy);cursor:pointer;padding:4px 8px;';
+  header.appendChild(hamburger);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'nav-overlay';
+  overlay.style.cssText = 'display:none;position:fixed;inset:0;background:rgba(10,22,40,0.7);z-index:998;backdrop-filter:blur(4px);';
+  document.body.appendChild(overlay);
+
+  // Menu mobile drawer
+  const mobileMenu = document.createElement('div');
+  mobileMenu.id = 'mobile-menu';
+  mobileMenu.style.cssText = 'position:fixed;top:0;right:-100%;width:280px;height:100vh;background:white;z-index:999;padding:24px;box-shadow:-8px 0 40px rgba(10,22,40,0.15);transition:right 0.35s cubic-bezier(0.34,1.56,0.64,1);overflow-y:auto;';
+  mobileMenu.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;">
+      <span style="font-family:var(--font-display);font-weight:800;font-size:1.1rem;background:linear-gradient(135deg,var(--navy),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">CHRIST MEDIA</span>
+      <button onclick="fermerMenu()" style="background:var(--off-white);border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:1.1rem;">✕</button>
+    </div>
+    <nav style="display:flex;flex-direction:column;gap:4px;">
+      ${['À propos:#apropos','Galerie:#galerie','Boutique:#boutique','Vidéos:#videos','Tarifs:#tarifs','Devis:#devis','Témoignages:#avis','Contact:#contact'].map(item => {
+        const [label, href] = item.split(':');
+        return `<a href="${href}" onclick="fermerMenu()" style="padding:14px 16px;border-radius:12px;color:var(--text);font-size:1rem;font-weight:500;display:block;transition:all 0.2s;" onmouseenter="this.style.background='var(--blue-glow)';this.style.color='var(--blue)'" onmouseleave="this.style.background='';this.style.color='var(--text)'">${label}</a>`;
+      }).join('')}
+    </nav>
+    <div style="margin-top:32px;padding-top:24px;border-top:1px solid var(--border);">
+      <a href="https://wa.me/22890260658" target="_blank" style="display:flex;align-items:center;gap:10px;background:#25D366;color:white;padding:14px 20px;border-radius:12px;font-weight:600;font-family:var(--font-display);">
+        💬 Nous contacter
+      </a>
+    </div>
+  `;
+  document.body.appendChild(mobileMenu);
+
+  window.fermerMenu = () => {
+    mobileMenu.style.right = '-100%';
+    overlay.style.display = 'none';
+    hamburger.innerHTML = '☰';
+  };
+
+  hamburger.addEventListener('click', () => {
+    const isOpen = mobileMenu.style.right === '0px';
+    if (isOpen) {
+      fermerMenu();
+    } else {
+      mobileMenu.style.right = '0px';
+      overlay.style.display = 'block';
+      hamburger.innerHTML = '✕';
+    }
+  });
+  overlay.addEventListener('click', fermerMenu);
+
+  // Afficher hamburger sur mobile, cacher nav links
+  const mobileCSS = document.createElement('style');
+  mobileCSS.textContent = `
+    @media (max-width: 768px) {
+      #hamburger { display:block !important; }
+      header nav a { display:none; }
+      header nav #dashboard-btn { display:none !important; }
+      body.dark #mobile-menu { background:#161b22; }
+      body.dark #mobile-menu a { color:#c9d1d9; }
+      body.dark #mobile-menu span { background:linear-gradient(135deg,#60a5fa,var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+      body.dark #hamburger { color:white; }
+    }
+  `;
+  document.head.appendChild(mobileCSS);
+
+  // 2. Scroll to top bouton
+  const scrollTop = document.createElement('button');
+  scrollTop.id = 'scroll-top';
+  scrollTop.innerHTML = '↑';
+  scrollTop.style.cssText = 'position:fixed;bottom:130px;right:18px;background:var(--navy);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:1.2rem;cursor:pointer;z-index:9996;box-shadow:var(--shadow);opacity:0;transform:translateY(20px);transition:all 0.3s;display:flex;align-items:center;justify-content:center;';
+  document.body.appendChild(scrollTop);
+  scrollTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 400) {
+      scrollTop.style.opacity = '1';
+      scrollTop.style.transform = 'translateY(0)';
+    } else {
+      scrollTop.style.opacity = '0';
+      scrollTop.style.transform = 'translateY(20px)';
+    }
+  }, { passive: true });
+
+  // 3. Swipe galerie sur mobile
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+
+  // 4. Active nav link au scroll
+  const navLinks = document.querySelectorAll('header nav a[href^="#"]');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    document.querySelectorAll('section[id]').forEach(section => {
+      if (window.scrollY >= section.offsetTop - 80) current = section.id;
+    });
+    navLinks.forEach(link => {
+      link.style.color = link.getAttribute('href') === '#' + current ? 'var(--blue)' : '';
+      link.style.background = link.getAttribute('href') === '#' + current ? 'var(--blue-glow)' : '';
+    });
+  }, { passive: true });
+
+  // 5. Animations au scroll (Intersection Observer)
+  const animObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+        animObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.card, .team-card, #avis-liste > div').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    animObserver.observe(el);
+  });
+
+  // Dark mode sync for mobile menu
+  const origDarkToggle = document.getElementById('dark-toggle');
+  if (origDarkToggle) {
+    origDarkToggle.addEventListener('click', () => {
+      setTimeout(() => {
+        const isDark = document.body.classList.contains('dark');
+        scrollTop.style.background = isDark ? '#f5c518' : 'var(--navy)';
+        scrollTop.style.color = isDark ? '#111' : 'white';
+      }, 50);
+    });
+  }
+
+
   // Observer pour charger les images au scroll
   if ('IntersectionObserver' in window) {
     const imgObserver = new IntersectionObserver((entries) => {
