@@ -1346,14 +1346,19 @@
 
   onValue(produitsRef, (snap) => {
     const data = snap.val();
-    if (data) {
+    if (data && Object.keys(data).length > 0) {
       tousLesProduits = Object.entries(data).map(([id, v]) => ({ id, ...v }));
     } else {
+      // Firebase vide → afficher produits par défaut immédiatement
       tousLesProduits = produitsDefaut;
     }
     afficherProduits(tousLesProduits);
     document.getElementById('boutique-admin').style.display = isAdmin ? 'block' : 'none';
   });
+
+  // Afficher produits par défaut immédiatement sans attendre Firebase
+  tousLesProduits = produitsDefaut;
+  afficherProduits(tousLesProduits);
 
   window.filtrerBoutique = (btn) => {
     document.querySelectorAll('#boutique-filtres button').forEach(b => b.classList.remove('active'));
@@ -2937,6 +2942,30 @@ Pack anniversaire dès 10 000 FCFA 🔥
 <!-- Boutons flottants supplémentaires -->
 <button onclick="document.getElementById('suivi-modal').style.display='flex'" style="position:fixed;bottom:142px;right:18px;background:var(--navy);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;z-index:9996;box-shadow:var(--shadow);transition:transform 0.2s;" title="Suivi commande" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform=''">📦</button>
 <button onclick="document.getElementById('fidelite-modal').style.display='flex'" style="position:fixed;bottom:196px;right:18px;background:linear-gradient(135deg,#f59e0b,#d97706);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;z-index:9996;box-shadow:0 4px 16px rgba(245,158,11,0.4);transition:transform 0.2s;" title="Programme fidélité" onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform=''">⭐</button>
+
+<!-- Tooltip labels pour les boutons -->
+<style>
+  #scroll-top { bottom: 250px !important; }
+  .whatsapp { bottom: 20px !important; }
+  #dark-toggle { bottom: 74px !important; }
+
+  /* Labels au survol */
+  [title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    right: 54px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--navy);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    font-family: var(--font-body);
+    pointer-events: none;
+  }
+</style>
 
 </body>
 </html>
