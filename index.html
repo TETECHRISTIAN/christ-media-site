@@ -1019,40 +1019,50 @@
   function ajouterImage(thumbUrl, fullUrl) {
     const grid = document.getElementById('galerie-grid');
     const wrapper = document.createElement('div');
-    wrapper.style.cssText = 'position:relative;overflow:hidden;border-radius:8px;';
+    wrapper.style.cssText = 'position:relative;overflow:hidden;border-radius:8px;cursor:pointer;';
 
     const img = document.createElement('img');
     img.src = thumbUrl;
     img.dataset.full = fullUrl;
     img.alt = 'Christ Media';
     img.loading = 'lazy';
-    img.style.cssText = 'width:100%;display:block;cursor:pointer;transition:transform 0.25s;';
-    img.addEventListener('click', () => openLightbox(fullUrl));
+    img.style.cssText = 'width:100%;display:block;transition:transform 0.25s;pointer-events:none;';
 
-    // Overlay de partage au survol
+    // Clic sur wrapper = ouvrir lightbox sauf si bouton partage
+    wrapper.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      openLightbox(fullUrl);
+    });
+
+    // Overlay partage
     const overlay = document.createElement('div');
-    overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,0.85) 0%,transparent 50%);opacity:0;transition:opacity 0.25s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;gap:6px;';
+    overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,0.92) 0%,rgba(10,22,40,0.1) 55%,transparent 100%);opacity:0;transition:opacity 0.25s;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;pointer-events:none;';
 
     const shareRow = document.createElement('div');
-    shareRow.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
+    shareRow.style.cssText = 'display:flex;gap:4px;flex-wrap:wrap;pointer-events:all;';
 
-    const msgBase = encodeURIComponent(`📸 *Réalisation Christ Media*\n\nDécouvrez notre galerie et réservez votre séance !\n👉 https://tetechristian.github.io/christ-media-site/\n📞 90 26 06 58\n\n🖼️ ${fullUrl}`);
+    const msgBase = encodeURIComponent('\u{1F4F8} *R\u00e9alisation Christ Media*\n\nD\u00e9couvrez notre galerie !\n\u{1F449} https://tetechristian.github.io/christ-media-site/\n\u{1F4DE} 90 26 06 58\n\n' + fullUrl);
 
     const btns = [
-      { icon: '💬', bg: '#25D366', label: 'WhatsApp', href: `https://wa.me/?text=${msgBase}` },
-      { icon: '📘', bg: '#1877F2', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://tetechristian.github.io/christ-media-site/#galerie')}` },
-      { icon: '✉️', bg: 'rgba(255,255,255,0.2)', label: 'Email', href: `mailto:?subject=${encodeURIComponent('📸 Réalisation Christ Media')}&body=${encodeURIComponent('Bonjour,\n\nDécouvrez cette réalisation de Christ Media :\n' + fullUrl + '\n\nVisitez notre site : https://tetechristian.github.io/christ-media-site/')}` },
-      { icon: '🔗', bg: 'rgba(255,255,255,0.2)', label: 'Copier', action: () => { navigator.clipboard.writeText(fullUrl); afficherToast('🔗 Lien copié !'); } }
+      { icon: '\u{1F4AC}', bg: '#25D366', label: 'WA', href: 'https://wa.me/?text=' + msgBase, title: 'WhatsApp' },
+      { icon: '\u{1F4D8}', bg: '#1877F2', label: 'FB', href: 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent('https://tetechristian.github.io/christ-media-site/#galerie'), title: 'Facebook' },
+      { icon: '\u2709\uFE0F', bg: 'rgba(60,60,60,0.9)', label: 'Email', href: 'mailto:?subject=' + encodeURIComponent('\u{1F4F8} R\u00e9alisation Christ Media') + '&body=' + encodeURIComponent('Bonjour,\n\nVoici une r\u00e9alisation de Christ Media :\n' + fullUrl + '\n\nVisitez notre site : https://tetechristian.github.io/christ-media-site/'), title: 'Email' },
+      { icon: '\u2B07\uFE0F', bg: 'rgba(14,165,233,0.9)', label: 'T\u00e9l\u00e9charger', href: fullUrl, download: true, title: 'T\u00e9l\u00e9charger' },
+      { icon: '\u{1F50D}', bg: 'rgba(255,255,255,0.2)', label: 'Agrandir', action: 'open', title: 'Agrandir' }
     ];
 
     btns.forEach(b => {
       const btn = document.createElement(b.href ? 'a' : 'button');
-      btn.innerHTML = `<span style="font-size:0.75rem;">${b.icon}</span>`;
-      btn.title = b.label;
-      btn.style.cssText = `background:${b.bg};border:none;color:white;border-radius:20px;padding:4px 10px;font-size:0.72rem;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;text-decoration:none;font-family:var(--font-body);font-weight:600;`;
-      btn.innerHTML = `${b.icon} <span>${b.label}</span>`;
-      if (b.href) { btn.href = b.href; btn.target = '_blank'; }
-      if (b.action) btn.addEventListener('click', (e) => { e.preventDefault(); b.action(); });
+      btn.title = b.title;
+      btn.style.cssText = 'background:' + b.bg + ';border:none;color:white;border-radius:16px;padding:4px 8px;font-size:0.68rem;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;text-decoration:none;font-family:var(--font-body);font-weight:600;';
+      btn.innerHTML = b.icon + ' ' + b.label;
+      if (b.href) {
+        btn.href = b.href;
+        if (b.download) btn.download = 'christ-media.jpg';
+        else btn.target = '_blank';
+      }
+      if (b.action === 'open') btn.addEventListener('click', (e) => { e.stopPropagation(); openLightbox(fullUrl); });
+      else if (b.href) btn.addEventListener('click', (e) => e.stopPropagation());
       shareRow.appendChild(btn);
     });
 
@@ -1060,25 +1070,12 @@
 
     const isMobile = window.innerWidth < 768;
     if (isMobile) overlay.style.opacity = '1';
-
     wrapper.addEventListener('mouseenter', () => { overlay.style.opacity = '1'; img.style.transform = 'scale(1.03)'; });
     wrapper.addEventListener('mouseleave', () => { if (!isMobile) overlay.style.opacity = '0'; img.style.transform = ''; });
-
-    // Bouton WhatsApp rapide (garde l'ancien aussi)
-    const wa = document.createElement('a');
-    wa.href = `https://wa.me/22890260658?text=${encodeURIComponent('Bonjour Christ Media, je suis intéressé par cette réalisation : ' + fullUrl)}`;
-    wa.target = '_blank';
-    wa.innerHTML = '💬';
-    wa.title = 'Contacter sur WhatsApp';
-    wa.style.cssText = `position:absolute;top:8px;right:8px;background:#25D366;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);opacity:${isMobile ? '1' : '0'};transition:opacity 0.2s;`;
-
-    wrapper.addEventListener('mouseenter', () => wa.style.opacity = '1');
-    wrapper.addEventListener('mouseleave', () => { if (!isMobile) wa.style.opacity = '0'; });
 
     wrapper.classList.add('grid-item');
     wrapper.appendChild(img);
     wrapper.appendChild(overlay);
-    wrapper.appendChild(wa);
     grid.appendChild(wrapper);
     observer.observe(wrapper);
     document.getElementById('galerie-loading').style.display = 'none';
@@ -1091,12 +1088,13 @@
   function openLightbox(src) {
     allImages = Array.from(document.querySelectorAll('#galerie-grid img')).map(i => i.dataset.full || i.src);
     currentIndex = allImages.indexOf(src);
+    if (currentIndex === -1) { allImages.push(src); currentIndex = allImages.length - 1; }
     const img = document.getElementById('lightbox-img');
     img.src = src;
-    // Mettre à jour le lien de téléchargement
     const dl = document.getElementById('lightbox-download');
     if (dl) { dl.href = src; dl.download = 'christ-media-' + Date.now() + '.jpg'; }
     document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
   }
 
   function getCurrentImageUrl() {
@@ -1161,9 +1159,10 @@
   });
   document.getElementById('lightbox-close').addEventListener('click', () => {
     document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = '';
   });
   document.getElementById('lightbox').addEventListener('click', function(e) {
-    if (e.target === this) this.classList.remove('active');
+    if (e.target === this) { this.classList.remove('active'); document.body.style.overflow = ''; }
   });
 
   // ===== TÉMOIGNAGES =====
