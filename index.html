@@ -737,6 +737,26 @@
   <span id="lightbox-prev">&#8592;</span>
   <img id="lightbox-img" src="" alt="">
   <span id="lightbox-next">&#8594;</span>
+  <!-- Barre de partage dans la lightbox -->
+  <div id="lightbox-share-bar" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;align-items:center;z-index:10001;flex-wrap:wrap;justify-content:center;">
+    <button onclick="partagerImageWhatsApp()" style="display:flex;align-items:center;gap:7px;background:#25D366;color:white;border:none;padding:10px 18px;border-radius:30px;font-family:var(--font-display);font-weight:600;font-size:0.82rem;cursor:pointer;box-shadow:0 4px 16px rgba(37,211,102,0.4);transition:all 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.558 4.14 1.535 5.878L0 24l6.278-1.506A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.86 0-3.601-.485-5.112-1.332l-.367-.215-3.727.894.928-3.624-.237-.385A9.948 9.948 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      WhatsApp
+    </button>
+    <button onclick="partagerImageFacebook()" style="display:flex;align-items:center;gap:7px;background:#1877F2;color:white;border:none;padding:10px 18px;border-radius:30px;font-family:var(--font-display);font-weight:600;font-size:0.82rem;cursor:pointer;box-shadow:0 4px 16px rgba(24,119,242,0.3);transition:all 0.2s;" onmouseenter="this.style.transform='translateY(-2px)'" onmouseleave="this.style.transform=''">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Facebook
+    </button>
+    <button onclick="partagerImageEmail()" style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.25);padding:10px 18px;border-radius:30px;font-family:var(--font-display);font-weight:600;font-size:0.82rem;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.25)'" onmouseleave="this.style.background='rgba(255,255,255,0.15)'">
+      ✉️ Email
+    </button>
+    <button onclick="copierLienImage()" style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.25);padding:10px 18px;border-radius:30px;font-family:var(--font-display);font-weight:600;font-size:0.82rem;cursor:pointer;transition:all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.25)'" onmouseleave="this.style.background='rgba(255,255,255,0.15)'">
+      🔗 Copier le lien
+    </button>
+    <a id="lightbox-download" download="christ-media-photo.jpg" style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.15);color:white;border:1px solid rgba(255,255,255,0.25);padding:10px 18px;border-radius:30px;font-family:var(--font-display);font-weight:600;font-size:0.82rem;cursor:pointer;transition:all 0.2s;text-decoration:none;" onmouseenter="this.style.background='rgba(255,255,255,0.25)'" onmouseleave="this.style.background='rgba(255,255,255,0.15)'">
+      ⬇️ Télécharger
+    </a>
+  </div>
 </div>
 
 <script type="module">
@@ -1006,23 +1026,58 @@
     img.dataset.full = fullUrl;
     img.alt = 'Christ Media';
     img.loading = 'lazy';
-    img.style.cssText = 'width:100%;display:block;cursor:pointer;transition:transform 0.2s;';
+    img.style.cssText = 'width:100%;display:block;cursor:pointer;transition:transform 0.25s;';
     img.addEventListener('click', () => openLightbox(fullUrl));
 
-    // Bouton WhatsApp
+    // Overlay de partage au survol
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:absolute;inset:0;background:linear-gradient(to top,rgba(10,22,40,0.85) 0%,transparent 50%);opacity:0;transition:opacity 0.25s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;gap:6px;';
+
+    const shareRow = document.createElement('div');
+    shareRow.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;';
+
+    const msgBase = encodeURIComponent(`📸 *Réalisation Christ Media*\n\nDécouvrez notre galerie et réservez votre séance !\n👉 https://tetechristian.github.io/christ-media-site/\n📞 90 26 06 58\n\n🖼️ ${fullUrl}`);
+
+    const btns = [
+      { icon: '💬', bg: '#25D366', label: 'WhatsApp', href: `https://wa.me/?text=${msgBase}` },
+      { icon: '📘', bg: '#1877F2', label: 'Facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://tetechristian.github.io/christ-media-site/#galerie')}` },
+      { icon: '✉️', bg: 'rgba(255,255,255,0.2)', label: 'Email', href: `mailto:?subject=${encodeURIComponent('📸 Réalisation Christ Media')}&body=${encodeURIComponent('Bonjour,\n\nDécouvrez cette réalisation de Christ Media :\n' + fullUrl + '\n\nVisitez notre site : https://tetechristian.github.io/christ-media-site/')}` },
+      { icon: '🔗', bg: 'rgba(255,255,255,0.2)', label: 'Copier', action: () => { navigator.clipboard.writeText(fullUrl); afficherToast('🔗 Lien copié !'); } }
+    ];
+
+    btns.forEach(b => {
+      const btn = document.createElement(b.href ? 'a' : 'button');
+      btn.innerHTML = `<span style="font-size:0.75rem;">${b.icon}</span>`;
+      btn.title = b.label;
+      btn.style.cssText = `background:${b.bg};border:none;color:white;border-radius:20px;padding:4px 10px;font-size:0.72rem;cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;text-decoration:none;font-family:var(--font-body);font-weight:600;`;
+      btn.innerHTML = `${b.icon} <span>${b.label}</span>`;
+      if (b.href) { btn.href = b.href; btn.target = '_blank'; }
+      if (b.action) btn.addEventListener('click', (e) => { e.preventDefault(); b.action(); });
+      shareRow.appendChild(btn);
+    });
+
+    overlay.appendChild(shareRow);
+
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) overlay.style.opacity = '1';
+
+    wrapper.addEventListener('mouseenter', () => { overlay.style.opacity = '1'; img.style.transform = 'scale(1.03)'; });
+    wrapper.addEventListener('mouseleave', () => { if (!isMobile) overlay.style.opacity = '0'; img.style.transform = ''; });
+
+    // Bouton WhatsApp rapide (garde l'ancien aussi)
     const wa = document.createElement('a');
-    wa.href = `https://wa.me/22890260658?text=${encodeURIComponent('Bonjour Christ Media, je suis intéressé par cette photo : ' + fullUrl)}`;
+    wa.href = `https://wa.me/22890260658?text=${encodeURIComponent('Bonjour Christ Media, je suis intéressé par cette réalisation : ' + fullUrl)}`;
     wa.target = '_blank';
     wa.innerHTML = '💬';
-    wa.title = 'Demander sur WhatsApp';
-    const isMobile = window.innerWidth < 768;
-    wa.style.cssText = `position:absolute;bottom:8px;right:8px;background:#25D366;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);opacity:${isMobile ? '1' : '0'};transition:opacity 0.2s;`;
+    wa.title = 'Contacter sur WhatsApp';
+    wa.style.cssText = `position:absolute;top:8px;right:8px;background:#25D366;color:white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:0.9rem;text-decoration:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);opacity:${isMobile ? '1' : '0'};transition:opacity 0.2s;`;
 
     wrapper.addEventListener('mouseenter', () => wa.style.opacity = '1');
     wrapper.addEventListener('mouseleave', () => { if (!isMobile) wa.style.opacity = '0'; });
 
     wrapper.classList.add('grid-item');
     wrapper.appendChild(img);
+    wrapper.appendChild(overlay);
     wrapper.appendChild(wa);
     grid.appendChild(wrapper);
     observer.observe(wrapper);
@@ -1036,20 +1091,66 @@
   function openLightbox(src) {
     allImages = Array.from(document.querySelectorAll('#galerie-grid img')).map(i => i.dataset.full || i.src);
     currentIndex = allImages.indexOf(src);
-    document.getElementById('lightbox-img').src = src;
+    const img = document.getElementById('lightbox-img');
+    img.src = src;
+    // Mettre à jour le lien de téléchargement
+    const dl = document.getElementById('lightbox-download');
+    if (dl) { dl.href = src; dl.download = 'christ-media-' + Date.now() + '.jpg'; }
     document.getElementById('lightbox').classList.add('active');
   }
+
+  function getCurrentImageUrl() {
+    return document.getElementById('lightbox-img').src;
+  }
+
+  const MSG_PARTAGE = `📸 *Réalisation Christ Media*\n\nDécouvrez notre travail ! Visitez notre site pour voir toute notre galerie et réserver votre séance photo/vidéo 🎬\n\n👉 https://tetechristian.github.io/christ-media-site/\n📞 90 26 06 58 | 97 21 76 35`;
+
+  window.partagerImageWhatsApp = () => {
+    const imgUrl = getCurrentImageUrl();
+    // WhatsApp ne permet pas d'envoyer image + texte directement via URL
+    // On envoie le message avec le lien du site + invite à voir la galerie
+    const msg = encodeURIComponent(MSG_PARTAGE + '\n\n🖼️ Image : ' + imgUrl);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  };
+
+  window.partagerImageFacebook = () => {
+    const imgUrl = encodeURIComponent(getCurrentImageUrl());
+    const siteUrl = encodeURIComponent('https://tetechristian.github.io/christ-media-site/#galerie');
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${siteUrl}`, '_blank');
+  };
+
+  window.partagerImageEmail = () => {
+    const imgUrl = getCurrentImageUrl();
+    const sujet = encodeURIComponent('📸 Réalisation Christ Media — Studio Photo & Vidéo Togo');
+    const corps = encodeURIComponent(`Bonjour,\n\nJe vous partage cette réalisation de Christ Media, studio photo & vidéo professionnel à Tsévié, Togo.\n\nVoir l'image : ${imgUrl}\n\nDécouvrez toute notre galerie et réservez en ligne :\nhttps://tetechristian.github.io/christ-media-site/\n\nContact : 90 26 06 58 | christmedia176@gmail.com`);
+    window.location.href = `mailto:?subject=${sujet}&body=${corps}`;
+  };
+
+  window.copierLienImage = () => {
+    const imgUrl = getCurrentImageUrl();
+    navigator.clipboard.writeText(imgUrl).then(() => {
+      afficherToast('🔗 Lien de l\'image copié !');
+    }).catch(() => {
+      afficherToast('🔗 ' + imgUrl);
+    });
+  };
 
   document.getElementById('lightbox-prev').addEventListener('click', (e) => {
     e.stopPropagation();
     currentIndex = (currentIndex - 1 + allImages.length) % allImages.length;
-    document.getElementById('lightbox-img').src = allImages[currentIndex];
+    const src = allImages[currentIndex];
+    document.getElementById('lightbox-img').src = src;
+    const dl = document.getElementById('lightbox-download');
+    if (dl) dl.href = src;
   });
 
   document.getElementById('lightbox-next').addEventListener('click', (e) => {
     e.stopPropagation();
     currentIndex = (currentIndex + 1) % allImages.length;
-    document.getElementById('lightbox-img').src = allImages[currentIndex];
+    const src = allImages[currentIndex];
+    document.getElementById('lightbox-img').src = src;
+    const dl = document.getElementById('lightbox-download');
+    if (dl) dl.href = src;
   });
 
   document.addEventListener('keydown', (e) => {
